@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f4c81" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>STG 4th Ed. Clinical CDS App</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: #eef3f8; color: #111827; padding: 12px; }
+    .app { max-width: 720px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 16px; box-shadow: 0 6px 20px rgba(15, 76, 129, 0.08); }
+    .top-bar { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+    h1 { font-size: 1.18rem; margin: 0 0 4px; color: #0f4c81; }
+    .sub { font-size: 0.83rem; color: #4b5563; margin-bottom: 12px; }
+    .pill-usage { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .nav-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tab-btn { padding: 7px 11px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+    .tab-btn.active { background: #0f4c81; color: #fff; border-color: #0f4c81; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; margin-bottom: 12px; background: #fafafa; }
+    .direct-dx-card { border: 1.5px solid #0f766e; background: #f0fdfa; }
+    .card h3 { margin: 12px 0 6px; font-size: 0.95rem; color: #1f2937; }
+    .card h3:first-child { margin-top: 0; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; margin: 6px 0 3px; }
+    input, select, textarea { width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.92rem; background: #fff; }
+    textarea { min-height: 65px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 9px; font-size: 0.96rem; font-weight: 700; cursor: pointer; background: #0f4c81; color: #fff; margin-top: 8px; touch-action: manipulation; }
+    .btn-direct { background: #0f766e; color: #fff; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chip { padding: 8px 12px; border-radius: 20px; border: 1px solid #94a3b8; background: #fff; font-size: 0.85rem; cursor: pointer; touch-action: manipulation; }
+    .chip.active { background: #0f4c81; color: #fff; border-color: #0f4c81; }
+    .step { display: none; }
+    .step.active { display: block; }
+    .badge { display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 8px; }
+    .badge-direct { background: #ccfbf1; color: #0f766e; }
+    .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .plan-box { border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; background: #fff; }
+    ul { margin: 6px 0 12px; padding-left: 18px; }
+    li { margin-bottom: 6px; font-size: 0.9rem; line-height: 1.4; }
+    .note-warn { font-size: 0.78rem; color: #6b7280; margin-top: 10px; }
+    .cc-tag { font-size: 0.82rem; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px; }
+    .alert-box { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 9px; padding: 10px; margin-bottom: 10px; font-size: 0.86rem; }
+    .teach-box { background: #f0f9ff; border: 1px solid #bae6fd; color: #0c4a6e; border-radius: 9px; padding: 10px; margin-bottom: 10px; font-size: 0.88rem; }
+    .final-dx-box { background: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; border-radius: 9px; padding: 10px; margin-top: 10px; font-size: 0.9rem; }
+    .lock-banner { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; border-radius: 9px; padding: 10px; margin-bottom: 10px; font-size: 0.85rem; }
+    .export-box { background: #111827; color: #f9fafb; border-radius: 8px; padding: 10px; font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; margin-top: 8px; }
+    .copy-status { font-size: 0.84rem; color: #065f46; font-weight: 700; margin-top: 6px; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .nav-tabs, .top-bar .pill-usage, #step4 .btn, .copy-status { display: none !important; }
+      .app { box-shadow: none; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top-bar">
+      <div>
+        <h1>STG 4th Ed. Clinical CDS App</h1>
+        <div class="sub">Web + App Ready • Ethiopian STG 4th Edition Teaching & Clinical Decision Support</div>
+      </div>
+      <div id="usagePill" class="pill-usage">Cases Completed: 0</div>
+    </div>
+
+    <div class="nav-tabs">
+      <button type="button" class="tab-btn active" onclick="switchView('clinicalView', this)">Clinical Workflow</button>
+      <button type="button" class="tab-btn" onclick="switchView('subView', this)">Usage & Billing</button>
+      <button type="button" class="tab-btn" onclick="switchView('adminView', this)">Owner Update</button>
+    </div>
+
+    <div id="clinicalView" class="view active">
+      <div id="step1" class="step active">
+        <span class="badge">Page 1 • Full Case Input OR 2-Page Direct Diagnosis</span>
+
+        <div class="card">
+          <h3>1. Patient Demographics & Ward (Optional)</h3>
+          <div class="row">
+            <div><label for="age">Age (Optional)</label><input id="age" type="text" placeholder="e.g. 26 or 4 months" /></div>
+            <div><label for="weight">Weight kg (Optional)</label><input id="weight" type="number" step="0.1" placeholder="e.g. 55 or 12" /></div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="sex">Sex (Optional)</label>
+              <select id="sex">
+                <option value="">Not specified</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+              </select>
+            </div>
+            <div>
+              <label for="ward">Ward / Section (Optional)</label>
+              <select id="ward">
+                <option value="">Auto / All Wards</option>
+                <option value="medical">Medical & Infectious / GI / Heme / Cardio / Endocrine</option>
+                <option value="surgical">Surgical & Trauma</option>
+                <option value="pediatrics">Pediatrics & Neonatal</option>
+                <option value="gynecology">Gynecology & Obstetrics</option>
+                <option value="psychiatry">Psychiatry</option>
+                <option value="oral_dental">11. Oral & Dental</option>
+                <option value="palliative">20. Palliative Care</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>2. Vital Signs (Optional if using Direct Diagnosis)</h3>
+          <div class="row">
+            <div><label for="bp">BP (mmHg)</label><input id="bp" type="text" placeholder="e.g. 110/70" /></div>
+            <div><label for="pr">PR</label><input id="pr" type="text" placeholder="88" /></div>
+          </div>
+          <div class="row">
+            <div><label for="rr">RR</label><input id="rr" type="text" placeholder="16" /></div>
+            <div><label for="temp">Temp (°C)</label><input id="temp" type="text" placeholder="36.8" /></div>
+          </div>
+          <div><label for="spo2">SpO2 (%)</label><input id="spo2" type="text" placeholder="96" /></div>
+        </div>
+
+        <div class="card">
+          <h3>3. Chief Complaint & Duration (For 4-Page Guided Flow)</h3>
+          <label for="cc">ዋና የህመም ቅሬታ (Chief Complaint)</label>
+          <textarea id="cc" placeholder="ለምሳሌ፡ Malaria, Typhoid, Typhus, Relapsing Fever, Meningitis, Diarrhea, Sepsis, UTI, TB, Leprosy, Leishmaniasis, Schistosomiasis, Rabies, Tetanus"></textarea>
+          <label for="ccDuration">የህመሙ ቆይታ (Duration)</label>
+          <input id="ccDuration" type="text" placeholder="ለምሳሌ፡ 2 days, 1 week" />
+          <button type="button" class="btn" id="step1NextBtn" onclick="goStep2(); return false;">Chief Complaint / Vitals Enter →</button>
+        </div>
+
+        <div class="card direct-dx-card">
+          <h3>4. Direct Diagnosis (2-Page Shortcut — Skip Full Chief Complaint & Vitals)</h3>
+          <p style="font-size:0.8rem;color:#115e59;margin:0 0 6px;">በአምስቱ ዋርዶች (Medical፣ Surgical፣ Pediatrics፣ Obs/Gyn፣ Psychiatry) ውስጥ ያለ ማንኛውንም Diagnosis እዚህ ሲያስገቡ፣ በቀጥታ ወደ <strong>Page 2 (Treatment & Non-Pharmacological Care)</strong> ይሄዳል።</p>
+          <label for="directDiagnosis">የራስዎ Diagnosis (Enter Diagnosis Directly)</label>
+          <input id="directDiagnosis" type="text" placeholder="ለምሳሌ፡ Malaria, Typhoid, Typhus, Relapsing Fever, Meningitis, Diarrhea, Sepsis, UTI, TB, Leprosy, Leishmaniasis, Schistosomiasis, Rabies, Tetanus" />
+          <label for="directDuration">ቆይታ / Notes (Optional)</label>
+          <input id="directDuration" type="text" placeholder="ለምሳሌ፡ 3 days, acute, adult..." />
+          <button type="button" class="btn btn-direct" id="directDxEnterBtn" onclick="goDirectPage2(); return false;">Direct Diagnosis Enter → (Page 2)</button>
+        </div>
+      </div>
+
+      <div id="step2" class="step">
+        <span class="badge">Step 2 of 4 • Characterizing & Associated Signs/Symptoms</span>
+        <div class="card">
+          <div id="ccContextBanner" class="cc-tag"></div>
+          <h3>የተመረጡ Signs & Symptoms ቀጥታ ወደ Diagnosis ይመራሉ — ምልክቶችን ምረጥ (Click)</h3>
+          <div id="symptomChips" class="chips"></div>
+        </div>
+        <button type="button" class="btn" onclick="goStep3(); return false;">Enter →</button>
+        <button type="button" class="btn btn-secondary" onclick="showStep('step1'); return false;">← Back</button>
+      </div>
+
+      <div id="step3" class="step">
+        <span class="badge">Step 3 of 4 • Related Investigations (Multi-Select Enabled)</span>
+        <div class="card">
+          <div id="invContextBanner" class="cc-tag"></div>
+          <h3>ከዚህ Chief Complaint እና Signs/Symptoms ጋር የተያያዙ ምርመራዎች</h3>
+          <p style="font-size:0.8rem;color:#4b5563;margin:0;">በእያንዳንዱ ምርመራ ውስጥ ሁለትና ከዚያ በላይ ውጤቶችን (chips) በአንድ ጊዜ መምረጥ ይችላሉ፤ ውጤት ያስገቡ ወይም በ <code>None</code> ይተዉ። ተጨማሪ ነጠላ ምርመራ ቢያስፈልግዎ ከታች ይጨምሩ።</p>
+        </div>
+        <div id="investigationList"></div>
+        <div class="card">
+          <h3>ተጨማሪ ነጠላ ምርመራ ጨምር (Optional)</h3>
+          <select id="extraInvSelect">
+            <option value="">-- Select additional single investigation --</option>
+          </select>
+          <button type="button" class="btn btn-secondary" onclick="addExtraInvestigation(); return false;">+ Add Investigation</button>
+        </div>
+        <button type="button" class="btn" onclick="goStep4(); return false;">Enter →</button>
+        <button type="button" class="btn btn-secondary" onclick="showStep('step2'); return false;">← Back</button>
+      </div>
+
+      <div id="step4" class="step">
+        <span id="step4Badge" class="badge">Step 4 of 4 • STG 4th Ed. Teaching & Clinical Summary</span>
+        <div class="card" id="finalSummary"></div>
+        <button type="button" class="btn" onclick="copySummaryText(); return false;">Copy Clinical Summary</button>
+        <button type="button" class="btn btn-secondary" onclick="window.print(); return false;">Print / Save PDF</button>
+        <p id="copyStatusMsg" class="copy-status"></p>
+        <button type="button" class="btn btn-secondary" onclick="showStep('step1'); return false;">← Back to Page 1</button>
+        <button type="button" class="btn" onclick="resetApp(); return false;">New Patient Case</button>
+      </div>
+    </div>
+
+    <div id="subView" class="view">
+      <div class="card">
+        <h3>Usage-Based & Subscription Plans (ETB • Chapa / Telebirr)</h3>
+        <p id="usageDetailText" style="font-size:0.86rem;color:#374151;"></p>
+        <div class="plan-grid">
+          <div class="plan-box"><strong>Case Pack (25 Cases)</strong><br/>Usage Metered • 100 ETB<button type="button" class="btn" onclick="selectPlan('Case Pack (25 Cases — 100 ETB)')">Select</button></div>
+          <div class="plan-box"><strong>Weekly Pass</strong><br/>7 Days • 150 ETB<button type="button" class="btn" onclick="selectPlan('Weekly Pass (7 Days — 150 ETB)')">Select</button></div>
+          <div class="plan-box"><strong>Monthly Plan</strong><br/>30 Days • 450 ETB<button type="button" class="btn" onclick="selectPlan('Monthly Plan (30 Days — 450 ETB)')">Select</button></div>
+          <div class="plan-box"><strong>Annual Plan</strong><br/>365 Days • 4,000 ETB<button type="button" class="btn" onclick="selectPlan('Annual Plan (365 Days — 4,000 ETB)')">Select</button></div>
+        </div>
+        <p id="planStatus" style="margin-top:10px;font-size:0.88rem;color:#0369a1;"></p>
+        <p class="note-warn">For enforced per-use billing and payment verification across all users, connect a backend service (/api/subscriptions/checkout & /api/usage/consume) with Chapa or Telebirr webhooks.</p>
+      </div>
+    </div>
+
+    <div id="adminView" class="view">
+      <div class="card">
+        <h3>Owner-Only STG 4th Edition Update Format</h3>
+        <div id="ownerLockSection">
+          <div class="lock-banner"><strong>Owner Access Protected:</strong> Enter your Owner PIN to unlock STG 4th Edition updates and export format. (Initial PIN: <code>2026</code> — you can change it once unlocked.)</div>
+          <label for="ownerPinInput">Owner PIN</label>
+          <input id="ownerPinInput" type="password" placeholder="Enter Owner PIN" />
+          <button type="button" class="btn" onclick="unlockOwnerPanel()">Unlock Owner Panel</button>
+          <p id="ownerLockMsg" style="margin-top:8px;font-size:0.86rem;color:#b91c1c;"></p>
+        </div>
+
+        <div id="ownerEditorSection" style="display:none;">
+          <p style="font-size:0.84rem;color:#065f46;font-weight:700;">Owner Mode Unlocked</p>
+          <label for="admWard">Ward / Section</label>
+          <select id="admWard">
+            <option value="medical">Medical & Infectious / GI / Heme / Cardio / Endocrine</option>
+            <option value="surgical">Surgical & Trauma</option>
+            <option value="pediatrics">Pediatrics & Neonatal</option>
+            <option value="gynecology">Gynecology & Obstetrics</option>
+            <option value="psychiatry">Psychiatry</option>
+            <option value="oral_dental">11. Oral & Dental</option>
+            <option value="palliative">20. Palliative Care</option>
+          </select>
+          <label for="admTitle">Section / Condition Title</label>
+          <input id="admTitle" type="text" placeholder="e.g. Updated STG 4th Ed. Protocol Title" />
+          <label for="admNote">First-Line / Second-Line / Surgical / Care Note</label>
+          <textarea id="admNote" placeholder="Enter STG 4th Edition update note..."></textarea>
+          <button type="button" class="btn" onclick="saveAdminStg()">Save & Generate Update Format</button>
+          <p id="adminMsg" style="margin-top:8px;font-size:0.88rem;color:#047857;"></p>
+
+          <label for="newOwnerPin">Change Owner PIN (Optional)</label>
+          <input id="newOwnerPin" type="text" placeholder="Enter new Owner PIN (e.g. 8899)" />
+          <button type="button" class="btn btn-secondary" onclick="changeOwnerPin()">Update Owner PIN</button>
+          <button type="button" class="btn btn-secondary" onclick="lockOwnerPanel()">Lock Owner Panel</button>
+
+          <h3>Structured Update Format (For Global Release / Documentation)</h3>
+          <div id="updateExportSnippet" class="export-box">No custom update generated yet. Fill Title & Note above and click "Save & Generate Update Format".</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ALL_SINGLE_INVESTIGATIONS = [
+      { id: "ob_bp", name: "Obstetric BP", options: ["None", "Low BP / Hypotension", "High BP (≥140/90 mmHg)", "Severe High BP (≥160/110 mmHg)", "Normal BP"], placeholder: "Blank space: Enter BP value (e.g. 85/55 or 165/110 mmHg)..." },
+      { id: "urine_protein", name: "Urine Protein (Proteinuria)", options: ["None", "Positive (+1 to +3)", "Trace", "Negative"], placeholder: "Blank space: Dipstick / 24h protein note..." },
+      { id: "ob_ultrasound", name: "Obstetric / Pelvic Ultrasound", options: ["None", "Retained placental tissue", "Uterine atony / subinvolution", "Placenta previa / abruption", "Adnexal / Ectopic / Intrauterine / Multiple or Molar finding", "Normal"], placeholder: "Blank space: Ultrasound finding / GA / FHR..." },
+      { id: "cbc", name: "CBC / Coagulation / Platelets", options: ["None", "Elevated WBC / Blast or Leukocytosis", "Low Hb (Anemia)", "Thrombocytopenia (Low Platelets)", "High Hb", "Normal"], placeholder: "Blank space: Hb (g/dL), WBC, Platelets, PT/INR, smear..." },
+      { id: "rvs", name: "RVS / HIV", options: ["None", "Positive", "Negative", "Indeterminate"], placeholder: "Blank space: Enter numeric value / CD4 / Viral load / note..." },
+      { id: "malaria", name: "Malaria Test", options: ["None", "Plasmodium falciparum", "Plasmodium vivax", "Mixed (P. falciparum + P. vivax)", "Negative"], placeholder: "Blank space: Parasite density / RDT note..." },
+      { id: "ketones", name: "Ketones / Osmolality / Amylase-Lipase", options: ["None", "Ketone Positive (+)", "Elevated Amylase / Lipase", "High Osmolality / Dehydration", "Negative"], placeholder: "Blank space: Ketones / Amylase / Lipase / Osmolality..." },
+      { id: "rbg", name: "RBG / Glucose & HbA1c", options: ["None", "Low Glucose (Hypoglycemia)", "High Glucose (Hyperglycemia)", "Elevated HbA1c", "Normal"], placeholder: "Blank space: Enter RBG (mg/dL), FBG, or HbA1c..." },
+      { id: "lipid_panel", name: "Lipid Profile", options: ["None", "High LDL-C", "High Triglycerides", "Low HDL-C", "Mixed Dyslipidemia", "Normal"], placeholder: "Blank space: Total Chol, LDL, HDL, Triglycerides..." },
+      { id: "calcium_bone", name: "Serum Calcium / Vitamin D / Bone Panel", options: ["None", "Low Calcium (Hypocalcemia)", "High Calcium (Hypercalcemia)", "Low Vitamin D / Bone Loss", "Normal"], placeholder: "Blank space: Calcium, Phosphate, PTH, Vit D, DEXA..." },
+      { id: "bilirubin", name: "Serum Bilirubin & Viral Hepatitis Serology", options: ["None", "Elevated Bilirubin (Jaundice)", "HBsAg / Anti-HCV / HAV-HEV Positive", "Normal"], placeholder: "Blank space: Total/Direct Bilirubin, HBsAg, Anti-HCV, HAV/HEV..." },
+      { id: "cxr", name: "Chest X-Ray & Echo", options: ["None", "Infiltrate", "Consolidation", "Pleural Effusion", "Cardiomegaly / Valvular or Vegetation finding", "Normal"], placeholder: "Blank space: CXR / Echocardiography finding..." },
+      { id: "ecg", name: "ECG", options: ["None", "Atrial Fibrillation / Flutter / SVT", "Ventricular Arrhythmia / Conduction Block", "ST-segment change / Ischemia", "Normal"], placeholder: "Blank space: ECG rate / rhythm / intervals / ST-T..." },
+      { id: "brain_ct", name: "Brain CT", options: ["None", "Ischemic infarct", "Hemorrhagic lesion", "Normal"], placeholder: "Blank space: Brain CT finding..." },
+      { id: "sputum_tb", name: "Sputum AFB / GeneXpert", options: ["None", "MTB Detected / AFB Positive", "Negative"], placeholder: "Blank space: GeneXpert / AFB / RIF status..." },
+      { id: "renal_rft", name: "RFT (Creatinine / Urea / Electrolytes)", options: ["None", "Elevated Creatinine / Urea", "Electrolyte abnormality (K+/Na+)", "Normal"], placeholder: "Blank space: Creatinine, Urea, Na+, K+, eGFR..." },
+      { id: "hepatic_lft", name: "LFT (AST / ALT / Albumin / INR)", options: ["None", "Elevated AST / ALT", "Low Albumin / High INR (Cirrhosis/Liver dysfunction)", "Normal"], placeholder: "Blank space: AST, ALT, ALP, Albumin, INR..." },
+      { id: "thyroid_tsh", name: "Thyroid Panel (TSH / Free T4 / T3)", options: ["None", "High TSH / Low T4", "Low TSH / High T4 or T3", "Goiter / Nodule on Ultrasound", "Normal"], placeholder: "Blank space: TSH, Free T4, Free T3, Neck US..." },
+      { id: "stool", name: "Stool Examination & Occult Blood", options: ["None", "Melena / Occult Blood / Hematochezia", "Giardia / Entamoeba / Helminths / Cysts", "RBCs / Mucus / Pus cells", "Normal"], placeholder: "Blank space: Stool microscopy / occult blood / appearance..." },
+      { id: "urinalysis", name: "Urinalysis & Blood Cultures", options: ["None", "WBC / Leukocytes / Nitrites positive (UTI)", "Glucose & Ketones positive", "Blood culture positive", "Proteinuria", "Normal"], placeholder: "Blank space: Urinalysis / Blood culture result..." },
+      { id: "surg_imaging", name: "Abdominal / Scrotal / Limb Ultrasound, CT or Doppler", options: ["None", "Gallstones / Cholecystitis / Biliary dilation", "Ascites / Cirrhosis / Liver Abscess / Pancreatitis", "DVT / VTE / Scrotal / Bowel / Mass", "Normal"], placeholder: "Blank space: Abdominal/Pelvic/Scrotal/Limb US/CT/Doppler note..." }
+    ];
+
+    const wardGuides = {
+      medical: {
+        symptoms: [
+          "Fever / chills / rigors / headache / myalgia / splenomegaly / rash / eschar (Malaria, Typhoid, Typhus, Relapsing Fever, Brucellosis, Anthrax, Leishmaniasis)",
+          "Cough / pleuritic chest pain / tachypnea / hypoxia / night sweats / weight loss (Pneumonia, Pleural/Lung infection, TB)",
+          "Neck stiffness / headache / photophobia / altered consciousness / seizures (Acute Bacterial Meningitis)",
+          "Watery or bloody diarrhea / tenesmus / vomiting / dehydration / dysuria / flank pain (Infectious Diarrhea, UTI)",
+          "Epigastric pain / reflux / GI bleeding / jaundice / ascites / RUQ pain (Dyspepsia, PUD, GERD, GI Bleed, Hepatitis, Cirrhosis, Biliary, Liver Abscess, Pancreatitis)",
+          "Pallor / fatigue / bleeding / petechiae / lymphadenopathy / leg swelling / dyspnea (Anemia, Thrombocytopenia, VTE/PE, Heme Malignancy)",
+          "Skin patch with sensory loss / thickened peripheral nerves (Leprosy)",
+          "Acute confusion / fluctuating attention / agitation / disorientation (Delirium)"
+        ]
+      },
+      surgical: {
+        symptoms: [
+          "Diffuse or severe abdominal pain / guarding / rebound / rigidity / fever (Peritonitis / Acute abdomen)",
+          "Right upper quadrant pain / fever / Murphy sign / RUQ abscess / jaundice (Cholecystitis / Liver Abscess)",
+          "Bone pain / limb swelling / warm tender joint / refusal to bear weight (Osteomyelitis / Septic Arthritis)",
+          "Animal bite / wound / trismus or muscle spasms / skin eschar (Rabies / Tetanus / Anthrax)",
+          "Anal bleeding / fissure / perianal abscess or fistula / scrotal swelling (Anorectal / Hydrocele)",
+          "Burns / trauma / active bleeding"
+        ]
+      },
+      pediatrics: {
+        symptoms: [
+          "Neonatal poor feeding / poor suck / lethargy / hypothermia or fever",
+          "Neonatal jaundice (yellow skin/sclera/palms-soles)",
+          "Fast breathing / chest indrawing / nasal flaring / grunting",
+          "Vomiting / diarrhea / sunken eyes / poor skin turgor / dehydration",
+          "Convulsions / neck stiffness / bulging fontanelle",
+          "Severe wasting / edema (MUAC / SAM signs)"
+        ]
+      },
+      gynecology: {
+        symptoms: [
+          "Persistent/intractable vomiting in pregnancy / weight loss / ketonuria / dehydration (Hyperemesis Gravidarum / HEG)",
+          "Vaginal bleeding / abdominal cramping / passed tissue / missed period (Abortion / APH / Ectopic / Molar)",
+          "Headache / blurred vision / epigastric pain / high BP",
+          "Postpartum vaginal bleeding / uterine atony / retained tissue",
+          "Postpartum fever / foul lochia / uterine tenderness (Puerperal sepsis)",
+          "Lower abdominal/pelvic pain / vaginal discharge / dysuria (PID/STI)"
+        ]
+      },
+      psychiatry: {
+        symptoms: [
+          "Acute fluctuating confusion / inattention / altered consciousness / sleep-wake reversal (Delirium)",
+          "Hallucinations / Delusions / Disorganized speech or behavior (Schizophrenia / Psychosis)",
+          "Low mood / Anhedonia / Hopelessness / Suicidal ideation (Depression)",
+          "Elevated or irritable mood / Decreased need for sleep / Grandiosity (Mania / Bipolar)",
+          "Anxiety / Panic / Restlessness / Phobia",
+          "Suicidal ideation / Risk"
+        ]
+      },
+      oral_dental: {
+        symptoms: [
+          "Toothache / thermal or sweet sensitivity / tooth decay / cavity (Dental caries / Pulpitis)",
+          "Facial/gum/jaw swelling / pus / throbbing pain / fever (Dental abscess / Pericoronitis)",
+          "Red, swollen, or bleeding gums / bad breath / loose teeth (Gingivitis / Periodontitis)",
+          "Painful mouth/tongue/cheek ulcer or white patches/plaques (Oral ulcer / Aphthous / Oral candidiasis)",
+          "Knocked-out, loosened, or fractured tooth after trauma (Dental trauma / Tooth fracture)",
+          "Non-healing oral ulcer/mass / persistent mouth pain / difficulty chewing or swallowing (Oral cancer)"
+        ]
+      },
+      palliative: {
+        symptoms: ["Pain (mild/moderate/severe)", "Fever", "Respiratory symptoms (dyspnea/secretions)", "GI symptoms (nausea/vomiting/constipation)", "Urinary symptoms (retention/dysuria)", "Skin problems (wound/pressure/itch)", "Infection signs", "Neuropsychiatric (delirium/anxiety/depression)", "Psychosocial distress", "Spiritual care needs", "End-of-life comfort needs"]
+      }
+    };
+
+    const STORAGE_KEY = "stg4_custom_ward_updates_v1";
+    const PIN_KEY = "stg4_owner_pin_v1";
+    const USAGE_KEY = "stg4_cases_completed_v1";
+
+    let customWardUpdates = {};
+    let ownerPin = "2026";
+    let casesCompleted = 0;
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) customWardUpdates = JSON.parse(saved);
+      const savedPin = localStorage.getItem(PIN_KEY);
+      if (savedPin) ownerPin = savedPin;
+      const savedUsage = localStorage.getItem(USAGE_KEY);
+      if (savedUsage) casesCompleted = parseInt(savedUsage, 10) || 0;
+    } catch (e) {}
+
+    const state = {
+      demographics: null,
+      vitals: {},
+      cc: "",
+      ccDuration: "",
+      directDiagnosis: "",
+      isDirectTwoPage: false,
+      symptoms: new Set(),
+      invResults: {},
+      invCustomNotes: {},
+      extraInvIds: new Set(),
+      caseCountedThisRun: false
+    };
+
+    function getInvNameById(invId) {
+      const found = ALL_SINGLE_INVESTIGATIONS.find(i => i.id === invId);
+      return found ? found.name : invId;
+    }
+
+    function formatDurationClean(dur) {
+      if (!dur) return "";
+      return String(dur).replace(/,\s*/g, " ").trim();
+    }
+
+    function getSelectedInvArray(invId) {
+      const val = state.invResults[invId];
+      if (Array.isArray(val) && val.length) return val;
+      if (typeof val === "string" && val && val !== "None") return [val];
+      return ["None"];
+    }
+
+    function flattenInvText(invObj) {
+      const items = [];
+      Object.entries(invObj || {}).forEach(([k, v]) => {
+        const label = getInvNameById(k);
+        const arr = Array.isArray(v) ? v : (v ? [v] : []);
+        arr.forEach(opt => {
+          if (opt && opt !== "None") items.push(`${label}: ${opt}`);
+        });
+      });
+      return items.join(" | ");
+    }
+
+    function renderUsageUI() {
+      const pill = document.getElementById("usagePill");
+      if (pill) pill.textContent = `Cases Completed: ${casesCompleted}`;
+      const detail = document.getElementById("usageDetailText");
+      if (detail) detail.textContent = `Current session/device usage count: ${casesCompleted} clinical case(s) completed. Choose a usage pack or subscription plan below.`;
+    }
+
+    function parseBP(bpStr) {
+      if (!bpStr) return null;
+      const m = bpStr.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
+      if (!m) return null;
+      return { sbp: parseInt(m[1], 10), dbp: parseInt(m[2], 10) };
+    }
+
+    function parseNum(str) {
+      if (!str) return null;
+      const m = String(str).match(/(\d+(?:\.\d+)?)/);
+      return m ? parseFloat(m[1]) : null;
+    }
+
+    function hasWord(text, word) {
+      return new RegExp(`\\b${word}\\b`, "i").test(text || "");
+    }
+
+    function isLeishmaniasisCase(text) {
+      return (text || "").toLowerCase().includes("leishman") || hasWord(text, "kala-azar") || hasWord(text, "kalaazar");
+    }
+
+    function isPsychiatryCase(text, wardKey) {
+      if (isLeishmaniasisCase(text)) return false;
+      if ((text || "").toLowerCase().includes("delirium")) return false;
+      return wardKey === "psychiatry" ||
+        text.includes("schizophren") || text.includes("psychos") || text.includes("psychotic") ||
+        text.includes("schizoaffective") || text.includes("depress") || text.includes("bipolar") ||
+        hasWord(text, "mania") || text.includes("manic") || text.includes("anxiety") ||
+        text.includes("panic") || text.includes("hallucinat") || text.includes("delusion") ||
+        text.includes("suicid") || text.includes("withdrawal") || text.includes("psychiatr");
+    }
+
+    function resolveInfectious270To500Driver(text) {
+      const t = (text || "").toLowerCase();
+
+      if (isLeishmaniasisCase(t)) return "id_8_21_leishmaniasis";
+      if (t.includes("leprosy") || t.includes("hansen")) return "id_8_28_leprosy";
+      if (t.includes("tuberculosis") || hasWord(t, "tb") || t.includes("mtb") || t.includes("gene-xpert") || t.includes("genexpert")) return "id_8_27_tb";
+      if (t.includes("tetanus") || t.includes("lockjaw") || t.includes("opisthotonos")) return "id_8_26_tetanus";
+      if (t.includes("rabies") || t.includes("hydrophobia") || t.includes("animal bite")) return "id_8_25_rabies";
+      if (t.includes("onchocerc") || t.includes("river blindness")) return "id_8_24_onchocerciasis";
+      if (t.includes("filariasis") || t.includes("elephantiasis")) return "id_8_23_filariasis";
+      if (t.includes("schistosom") || t.includes("bilharzia")) return "id_8_22_schistosomiasis";
+      if (t.includes("anthrax") || t.includes("eschar")) return "id_8_20_anthrax";
+      if (t.includes("brucell") || t.includes("undulant")) return "id_8_19_brucellosis";
+      if (t.includes("helminth") || t.includes("ascari") || t.includes("hookworm") || t.includes("trichur") || t.includes("taenia") || t.includes("strongyloid") || t.includes("pinworm") || t.includes("worm")) return "id_8_18_helminths";
+      if (t.includes("urinary tract") || hasWord(t, "uti") || t.includes("cystitis") || t.includes("pyelonephritis") || t.includes("dysuria")) return "id_8_17_uti";
+      if (t.includes("septic shock") || t.includes("sepsis")) return "id_8_16_sepsis";
+      if (t.includes("neutropenic")) return "id_8_15_neutropenic_fever";
+      if (t.includes("septic arthritis")) return "id_8_14_septic_arthritis";
+      if (t.includes("osteomyelit")) return "id_8_13_osteomyelitis";
+      if (t.includes("infectious diarr") || t.includes("dysentery") || t.includes("cholera") || t.includes("gastroenteritis") || t.includes("watery diarrhea") || t.includes("bloody diarrhea")) return "id_8_12_diarrheal";
+      if (t.includes("meningit") || t.includes("neck stiffness") || t.includes("kernig") || t.includes("brudzinski")) return "id_8_11_meningitis";
+      if (t.includes("pneumonia") || t.includes("pulmonary infection") || t.includes("lung abscess") || t.includes("empyema") || t.includes("pleural effusion")) return "id_8_10_pulmonary_inf";
+      if (t.includes("viral febrile") || t.includes("dengue") || t.includes("chikungunya") || t.includes("yellow fever") || t.includes("measles") || t.includes("varicella") || t.includes("chickenpox")) return "id_8_9_viral_febrile";
+      if (t.includes("relapsing fever") || t.includes("borrelia")) return "id_8_8_relapsing_fever";
+      if (t.includes("typhus") || t.includes("ricketts")) return "id_8_7_typhus";
+      if (t.includes("typhoid") || t.includes("enteric fever") || t.includes("salmonella typhi")) return "id_8_6_typhoid";
+      if (t.includes("malaria") || t.includes("falciparum") || t.includes("vivax")) return "id_8_5_malaria";
+      if (t.includes("acute febrile") || hasWord(t, "afi")) return "id_8_4_afi";
+      if (hasWord(t, "aids") || hasWord(t, "hiv") || t.includes("acquired immunodeficiency") || t.includes("opportunistic infection")) return "id_8_3_hiv_aids";
+      if (t.includes("principles of antimicrobial") || t.includes("antimicrobial selection") || t.includes("antibiotic stewardship")) return "id_8_2_abx_principles";
+      if (t.includes("surgical prophylaxis") || t.includes("antimicrobial prophylaxis in surgery") || t.includes("pre-op prophylaxis")) return "id_8_1_surg_prophylaxis";
+
+      return null;
+    }
+
+    function buildInfectious270To500Plan(driver, ccText, cleanDur, symArr, chosenDetails, wt) {
+      const symLead = symArr.length ? `Driven by Signs/Symptoms [${symArr.join("; ")}]` : `Chief Complaint "${ccText}"`;
+      const durLabel = cleanDur || "Duration not specified";
+
+      const plans = {
+        id_8_1_surg_prophylaxis: {
+          diagnosis: `Specific Diagnosis (STG 8.1 • Pages 270–276): Antimicrobial Prophylaxis in Surgery — ${symLead} (${chosenDetails || "Surgical Wound & Timing Review"}) (${durLabel})`,
+          clues: "Planned surgical procedure class (clean-contaminated, contaminated, implant/prosthetic, or high-risk clean), timing within 60 minutes prior to incision, and allergy/MRSA risk.",
+          rationale: "Administer appropriate single-dose or ≤24-hour perioperative prophylaxis timed before incision to prevent surgical site infection without unnecessary prolonged antibiotic exposure.",
+          firstLine: [`Cefazolin (IV single preoperative dose within 60 min before skin incision for ${wt}; add Metronidazole when anaerobic coverage is indicated) • Route: IV • Duration: Single dose or ≤24 hours perioperative.`],
+          secondLine: [`Clindamycin or Vancomycin (if severe beta-lactam allergy or MRSA risk per protocol) • Route: IV • Duration: Single preoperative dose / ≤24 hours.`],
+          surgical: "Maintain strict aseptic technique, normothermia, glycemic control, and timely redosing during prolonged procedures or major blood loss.",
+          nutrition: "Follow perioperative fasting and early postoperative nutritional recovery protocols.",
+          nonPharm: "Avoid routine continuation of prophylactic antibiotics postoperatively unless treating an established infection."
+        },
+        id_8_2_abx_principles: {
+          diagnosis: `Specific Diagnosis (STG 8.2 • Pages 277–282): Principles of Antimicrobial Regimen Selection — ${symLead} (${chosenDetails || "Stewardship & Susceptibility Review"}) (${durLabel})`,
+          clues: "Likely pathogen/site of infection, local resistance patterns, drug spectrum, renal/hepatic function, pregnancy/lactation, and culture/susceptibility results.",
+          rationale: "Select the most targeted, effective antimicrobial with proper dose, route, and duration, de-escalate once culture/clinical data allow, and monitor toxicity.",
+          firstLine: [`Targeted or empiric STG-recommended antimicrobial tailored to infection site, severity, and ${wt} (adjusted for renal/hepatic function) • Route: PO/IV • Duration: Shortest effective course per diagnosis.`],
+          secondLine: [`Culture-guided or escalated antimicrobial therapy if clinical failure, resistance, or severe/nosocomial infection occurs • Route: IV/PO • Duration: Per specialist/culture guidance.`],
+          surgical: "Perform source control (abscess drainage, debridement, device removal) alongside antimicrobial therapy when indicated.",
+          nutrition: "Support hydration and nutritional status during infection recovery.",
+          nonPharm: "Monitor clinical response, drug adverse effects, and antibiotic stewardship/resistance prevention."
+        },
+        id_8_3_hiv_aids: {
+          diagnosis: `Specific Diagnosis (STG 8.3 • Pages 283–347): HIV / AIDS & Opportunistic Infections — ${symLead} (${chosenDetails || "WHO Staging, RVS, CD4/VL & OI Screen"}) (${durLabel})`,
+          clues: "HIV serostatus, WHO clinical stage, CD4 count/viral load, weight loss, chronic fever/diarrhea/cough, lymphadenopathy, oral candidiasis, or opportunistic/TB signs.",
+          rationale: "Initiate/continue ART per national guidelines, provide Cotrimoxazole Preventive Therapy (CPT) and TB preventive/active care as indicated, and treat opportunistic infections promptly.",
+          firstLine: [`First-line Antiretroviral Therapy (e.g., TDF + 3TC + DTG once daily per national HIV guidelines) + Cotrimoxazole Preventive Therapy (CPT) where indicated for ${wt} • Route: PO • Duration: Lifelong ART; CPT per CD4/WHO criteria.`],
+          secondLine: [`Second-line/regimen switch per national ART guidelines (if treatment failure/toxicity) + specific treatment for opportunistic infections • Route: PO/IV • Duration: Per OI/national protocol.`],
+          surgical: "Obtain specialist/surgical care for surgical complications, biopsies, or severe anorectal/opportunistic pathology.",
+          nutrition: "Provide high-energy, high-protein nutrition, micronutrient support, and safe water/food hygiene.",
+          nonPharm: "Counsel on adherence, disclosure/partner services, stigma reduction, and regular clinical/viral/CD4 monitoring."
+        },
+        id_8_4_afi: {
+          diagnosis: `Specific Diagnosis (STG 8.4 • Pages 348–350): Acute Febrile Illness (AFI) — ${symLead} (${chosenDetails || "Fever & Danger-Sign Evaluation"}) (${durLabel})`,
+          clues: "Acute fever (<14 days), localizing symptoms, malaria/typhoid/typhus/relapsing fever/arboviral/sepsis clues, vital signs, and basic lab/RDT results.",
+          rationale: "Screen for immediate danger signs/sepsis and endemic treatable causes (malaria, relapsing fever, typhus, typhoid, bacterial infection), start targeted/supportive care, and reassess closely.",
+          firstLine: [`Paracetamol (antipyretic/analgesic dosed for ${wt}) + oral/IV rehydration + targeted antimicrobial/antimalarial therapy once specific AFI etiology is identified • Route: PO/IV • Duration: Until afebrile & etiology-specific course completed.`],
+          secondLine: [`Broad-spectrum IV antibiotics or referral/inpatient escalation if sepsis, shock, severe organ dysfunction, or persistent unexplained fever occurs • Route: IV • Duration: Per clinical severity.`],
+          surgical: "Evaluate for surgical/abscess/biliary/soft-tissue infection source if focal tenderness or acute abdomen is present.",
+          nutrition: "Encourage frequent fluids and light nutritious meals as tolerated to offset fever metabolic demand.",
+          nonPharm: "Monitor Temp, BP, PR, RR, SpO2, and hydration; return immediately for stiff neck, confusion, rash/bleeding, breathing difficulty, or persistent vomiting."
+        },
+        id_8_5_malaria: {
+          diagnosis: `Specific Diagnosis (STG 8.5 • Pages 351–366): Malaria (Uncomplicated / Severe • P. falciparum / P. vivax) — ${symLead} (${chosenDetails || "Parasitology/RDT & Severity Assessment"}) (${durLabel})`,
+          clues: "Fever/chills/rigors/sweating/headache/myalgia, malaria microscopy or RDT result, and severe malaria signs (impaired consciousness/coma, severe anemia, respiratory distress, shock, jaundice, renal/bleeding/hypoglycemia).",
+          rationale: "Confirm species/severity when possible, treat uncomplicated malaria promptly with recommended ACT (plus primaquine per vivax/gametocyte protocol when indicated), and treat severe malaria immediately with IV/IM Artesunate.",
+          firstLine: [`Uncomplicated: Artemether-Lumefantrine (AL, weight-banded PO for ${wt} over 3 days) or national first-line ACT (+ Primaquine per vivax/protocol). Severe: IV or IM Artesunate (2.4 mg/kg for ${wt} at 0, 12, 24h then daily until able to take full PO ACT course) • Route: PO / IV / IM • Duration: 3 days ACT; ≥24h parenteral Artesunate then PO ACT.`],
+          secondLine: [`Alternative ACT or Quinine + Doxycycline/Clindamycin (if first-line unavailable/intolerant) + supportive care for hypoglycemia, severe anemia, seizures, or shock • Route: PO/IV • Duration: Per STG malaria protocol.`],
+          surgical: "No routine surgery; monitor for splenic rupture only if severe left upper quadrant pain/shock occurs.",
+          nutrition: "Maintain hydration and small frequent meals/glucose monitoring (especially in children and pregnant women).",
+          nonPharm: "Use insecticide-treated bed nets (ITNs) and vector control, monitor Temp, RBG, Hb, and neurological/renal status, and ensure full course completion."
+        },
+        id_8_6_typhoid: {
+          diagnosis: `Specific Diagnosis (STG 8.6 • Pages 367–370): Typhoid Fever (Enteric Fever) — ${symLead} (${chosenDetails || "Clinical, Blood/Stool & Serology Evaluation"}) (${durLabel})`,
+          clues: "Stepwise or sustained fever, headache, abdominal pain/distension, constipation or diarrhea, relative bradycardia, rose spots/hepatosplenomegaly, and complication clues (GI bleeding/perforation).",
+          rationale: "Initiate appropriate antibiotic therapy active against Salmonella Typhi per local susceptibility/STG, hydrate/support nutrition, and watch closely for intestinal perforation or hemorrhage.",
+          firstLine: [`Azithromycin or Ciprofloxacin or Ceftriaxone (dosed for ${wt} per Ethiopian STG & local resistance profile) + Paracetamol & hydration • Route: PO/IV • Duration: 7–14 days per agent & severity.`],
+          secondLine: [`Ceftriaxone IV (if PO intolerant/severe/resistant) or specialist/surgical care if complicated by intestinal perforation, GI bleeding, or shock • Route: IV • Duration: 10–14 days.`],
+          surgical: "Obtain urgent surgical consultation if acute abdominal pain, guarding/rebound, or signs of typhoid intestinal perforation/peritonitis develop.",
+          nutrition: "Provide soft, easily digestible, high-calorie, high-protein meals and adequate fluids.",
+          nonPharm: "Ensure safe drinking water, handwashing, and sanitation; monitor Temp, abdominal signs, and hydration."
+        },
+        id_8_7_typhus: {
+          diagnosis: `Specific Diagnosis (STG 8.7 • Pages 371–372): Typhus (Louse-Borne / Murine / Scrub Rickettsial) — ${symLead} (${chosenDetails || "Vector, Rash & Fever Evaluation"}) (${durLabel})`,
+          clues: "High fever, severe headache, myalgia, rash (macular/petechial sparing face initially in epidemic typhus), body lice/flea/mite exposure, and overcrowded/poor hygiene setting.",
+          rationale: "Treat promptly with Doxycycline and perform delousing/vector control to stop transmission.",
+          firstLine: [`Doxycycline (100 mg PO every 12h in adults or weight-based for ${wt}; short course per STG) + Paracetamol & hydration • Route: PO • Duration: 1–7 days per STG/clinical response.`],
+          secondLine: [`Chloramphenicol or Azithromycin (alternative per STG/clinical situation) + supportive ICU/fluid care if complicated • Route: PO/IV • Duration: Per STG.`],
+          surgical: "No primary surgical treatment unless secondary gangrene/necrosis or complication requires care.",
+          nutrition: "Maintain adequate hydration and balanced nutrition during recovery.",
+          nonPharm: "Perform thorough delousing of clothes/bedding/patient (for louse-borne typhus) and improve hygiene to prevent outbreaks."
+        },
+        id_8_8_relapsing_fever: {
+          diagnosis: `Specific Diagnosis (STG 8.8 • Pages 373–375): Relapsing Fever (Louse-Borne / Tick-Borne) — ${symLead} (${chosenDetails || "Blood Smear & Jarisch-Herxheimer Monitoring"}) (${durLabel})`,
+          clues: "Abrupt high fever, rigors, headache, myalgia/arthralgia, hepatosplenomegaly, relapsing fever pattern, Borrelia on blood smear, and risk of Jarisch-Herxheimer reaction after initial antibiotic.",
+          rationale: "Administer effective anti-Borrelia therapy per STG, monitor closely for Jarisch-Herxheimer reaction in the first hours, and delouse if louse-borne.",
+          firstLine: [`Doxycycline (single dose or short course per STG for ${wt}) or Erythromycin / Procaine Penicillin per STG • Route: PO/IM • Duration: Per STG relapsing fever regimen.`],
+          secondLine: [`IV fluids, antipyretics, and close vital-sign/hemodynamic monitoring during Jarisch-Herxheimer reaction or severe/relapsing illness • Route: IV/PO • Duration: Acute management.`],
+          surgical: "No routine surgery; monitor spleen/bleeding/cardiopulmonary status during acute febrile crisis.",
+          nutrition: "Ensure oral/IV hydration and light nutrition as tolerated.",
+          nonPharm: "Monitor BP, PR, RR, and Temp closely in the first 4–24 hours after treatment for Jarisch-Herxheimer reaction, and delouse clothes/contacts if louse-borne."
+        },
+        id_8_9_viral_febrile: {
+          diagnosis: `Specific Diagnosis (STG 8.9 • Pages 376–387): Viral Febrile Illnesses — ${symLead} (${chosenDetails || "Rash, Arboviral/Exanthem & Danger-Sign Check"}) (${durLabel})`,
+          clues: "Acute fever with rash/exanthem, arthralgia/myalgia, conjunctival/mucosal signs, or arboviral/measles/varicella/viral hepatitis clues, and warning signs.",
+          rationale: "Provide supportive hydration, fever/pain control (avoiding aspirin/NSAIDs when bleeding/dengue risk is possible), isolate/prevent spread if contagious, and manage complications.",
+          firstLine: [`Paracetamol (for fever/pain dosed for ${wt}) + oral/IV fluids + targeted supportive/isolation care • Route: PO/IV • Duration: Until symptom resolution / protocol duration.`],
+          secondLine: [`Inpatient/ICU supportive therapy (fluids, oxygen, transfusion, or secondary bacterial infection treatment) if hemorrhagic, severe, or complicated course occurs • Route: IV/PO • Duration: Per complication.`],
+          surgical: "No routine surgery unless a secondary complication requires intervention.",
+          nutrition: "Maintain hydration (ORS/fluids) and easily digestible nutritious food.",
+          nonPharm: "Avoid NSAIDs/aspirin if hemorrhagic/dengue risk exists, practice infection control/isolation for contagious exanthems, and watch for danger signs."
+        },
+        id_8_10_pulmonary_inf: {
+          diagnosis: `Specific Diagnosis (STG 8.10 • Pages 388–406): Pulmonary Infections (Pneumonia / Pleural / Lung Abscess) — ${symLead} (${chosenDetails || "RR, SpO2, CXR & Sputum Evaluation"}) (${durLabel})`,
+          clues: "Cough, fever, sputum, pleuritic chest pain, tachypnea/dyspnea, hypoxia (SpO2), crackles/consolidation/effusion on exam or CXR, and severity.",
+          rationale: "Assess oxygenation and severity first, give oxygen if hypoxic, start prompt empiric antibiotics covering respiratory pathogens per setting, and drain pleural/lung collections when indicated.",
+          firstLine: [`Outpatient/Mild: Amoxicillin or Amoxicillin-Clavulanate or Doxycycline/Macrolide (dosed for ${wt} per STG). Inpatient/Severe: Ceftriaxone or Ampicillin + Azithromycin/Doxycycline + Oxygen if SpO2 <90% • Route: PO/IV/Inhalation • Duration: 5–7+ days per severity.`],
+          secondLine: [`Escalated IV antimicrobials per culture/severity + thoracentesis/chest tube drainage for significant pleural effusion/empyema or lung abscess • Route: IV / Procedural • Duration: Per clinical & radiological response.`],
+          surgical: "Obtain thoracic/general surgery consultation for empyema, complicated parapneumonic effusion, or persistent/large lung abscess requiring drainage.",
+          nutrition: "Maintain hydration and high-protein, high-calorie meals as tolerated.",
+          nonPharm: "Monitor RR, SpO2, PR, BP, and Temp, encourage deep breathing, and avoid smoking."
+        },
+        id_8_11_meningitis: {
+          diagnosis: `Specific Diagnosis (STG 8.11 • Pages 407–413): Acute Bacterial Meningitis — ${symLead} (${chosenDetails || "Neurologic Exam, LP/CSF & Sepsis Screen"}) (${durLabel})`,
+          clues: "Fever, severe headache, neck stiffness, altered mental status/lethargy/coma, photophobia, seizures, or petechial/purpuric rash, plus CSF/blood workup.",
+          rationale: "Treat as a medical emergency: start empirical IV antibiotics immediately without delaying treatment for LP/imaging, stabilize airway/breathing/circulation, and perform LP when safe.",
+          firstLine: [`Ceftriaxone (high-dose IV for ${wt} per STG/pediatric-adult protocol) ± Ampicillin/Vancomycin + Dexamethasone IV (when indicated before/with first antibiotic dose) • Route: IV • Duration: 7–14+ days per pathogen.`],
+          secondLine: [`Pathogen-directed IV antibiotic adjustment + ICU/seizure/intracranial pressure management if unresponsive or complicated • Route: IV • Duration: Per confirmed organism.`],
+          surgical: "Obtain neurosurgical review if hydrocephalus, brain abscess, subdural empyema, or cranial trauma/CSF leak is suspected.",
+          nutrition: "Keep NPO initially if altered consciousness/seizures; provide IV fluids or enteral/oral nutrition once airway and swallowing are safe.",
+          nonPharm: "Monitor GCS, pupils, seizures, BP, PR, RR, SpO2, Temp, and fluid/electrolyte balance continuously; manage contacts per public health protocol."
+        },
+        id_8_12_diarrheal: {
+          diagnosis: `Specific Diagnosis (STG 8.12 • Pages 414–423): Infectious Diarrheal Disease — ${symLead} (${chosenDetails || "Dehydration Plan A/B/C, Stool & Dysentery Screen"}) (${durLabel})`,
+          clues: "Acute watery vs bloody/mucoid diarrhea (dysentery), vomiting, dehydration severity (Plan A/B/C), and cholera/parasitic/bacterial clues.",
+          rationale: "Prioritize rehydration (Plan A/B ORS, Plan C urgent IV fluids for severe dehydration/shock), give Zinc in children, and give antibiotics only when indicated.",
+          firstLine: [`Rehydration: Low-osmolarity ORS (Plan A/B) or Ringer's Lactate / Normal Saline IV (Plan C for ${wt}) + Zinc (children) + Ciprofloxacin or Azithromycin (for dysentery) or Doxycycline/Azithromycin (for cholera per STG) • Route: PO/IV • Duration: Rehydration until corrected; antibiotics 3–5 days when indicated.`],
+          secondLine: [`Alternative antibiotic per stool/susceptibility or prolonged/severe dehydration & electrolyte correction • Route: PO/IV • Duration: Per STG.`],
+          surgical: "Evaluate for surgical/acute abdomen conditions if severe abdominal pain, guarding, or intestinal obstruction/intussusception is suspected.",
+          nutrition: "Continue breastfeeding/feeding without interruption during and after diarrhea; offer frequent small meals and extra fluids.",
+          nonPharm: "Assess hydration status repeatedly, enforce handwashing with soap and safe water/latrine use, and avoid routine antimotility drugs in dysentery/children."
+        },
+        id_8_13_osteomyelitis: {
+          diagnosis: `Specific Diagnosis (STG 8.13 • Pages 424–426): Pyogenic Osteomyelitis — ${symLead} (${chosenDetails || "Bone Pain/Tenderness, Imaging & Culture"}) (${durLabel})`,
+          clues: "Localized bone pain, tenderness, warmth, erythema, swelling, fever, refusal to bear weight/use limb, elevated ESR/CRP/WBC, and imaging findings.",
+          rationale: "Start prompt empiric IV antibiotics covering Staphylococcus aureus and likely pathogens, obtain cultures before antibiotics when feasible without delay, and evaluate for surgical drainage/debridement.",
+          firstLine: [`Cloxacillin or Cefazolin or Ceftriaxone (dosed for ${wt} per STG/age) + analgesia & limb rest/splinting • Route: IV initially, then PO step-down • Duration: Typically 3–6 weeks total per STG/clinical response.`],
+          secondLine: [`Vancomycin or Clindamycin (if MRSA/penicillin allergy/severe infection) or culture-guided therapy • Route: IV/PO • Duration: Per specialist/clinical response.`],
+          surgical: "Refer to orthopedic surgery urgently if subperiosteal/intraosseous abscess, necrotic bone/sequestrum, compartment signs, or antibiotic failure occurs.",
+          nutrition: "Provide high-protein, calcium/vitamin D-rich balanced diet and adequate hydration for bone healing.",
+          nonPharm: "Immobilize/elevate affected limb gently, monitor neurovascular status and fever/pain, and follow up closely."
+        },
+        id_8_14_septic_arthritis: {
+          diagnosis: `Specific Diagnosis (STG 8.14 • Pages 427–429): Septic Arthritis — ${symLead} (${chosenDetails || "Joint Exam, Arthrocentesis & Urgent Drainage"}) (${durLabel})`,
+          clues: "Acute hot, swollen, erythematous, severely painful joint with restricted range of motion, fever, and joint aspirate/blood labs.",
+          rationale: "Treat as an orthopedic emergency: start IV antibiotics immediately AND arrange urgent joint decompression/drainage to prevent rapid cartilage destruction.",
+          firstLine: [`Ceftriaxone or Cloxacillin / Cefazolin (high-dose IV for ${wt} per STG/age) + analgesia & urgent joint drainage • Route: IV & Joint aspiration/drainage • Duration: Parenteral then PO step-down for 2–4 weeks.`],
+          secondLine: [`Vancomycin or culture-directed antibiotics + repeated joint aspiration or surgical washout if pus re-accumulates • Route: IV / Surgical • Duration: Per orthopedic & microbiologic response.`],
+          surgical: "Urgent orthopedic surgery for joint drainage/washout when indicated.",
+          nutrition: "Maintain hydration and balanced protein/calorie intake during recovery.",
+          nonPharm: "Keep affected joint at rest initially, followed by gentle guided physiotherapy once acute infection is controlled."
+        },
+        id_8_15_neutropenic_fever: {
+          diagnosis: `Specific Diagnosis (STG 8.15 • Pages 430–433): Neutropenic Fever — ${symLead} (${chosenDetails || "ANC/CBC, Fever & Sepsis Screen"}) (${durLabel})`,
+          clues: "Fever in a patient with recent chemotherapy/immunosuppression or low neutrophils (ANC <500 cells/µL), even with subtle localizing signs.",
+          rationale: "Treat as a life-threatening emergency: perform urgent evaluation/cultures and administer empirical antipseudomonal IV antibiotic therapy promptly.",
+          firstLine: [`Ceftazidime or Cefepime or Piperacillin-Tazobactam (IV antipseudomonal beta-lactam dosed for ${wt} per STG/hospital protocol) after obtaining blood cultures • Route: IV • Duration: Until afebrile & neutrophil recovery per protocol.`],
+          secondLine: [`Add Vancomycin or escalate/add antifungal therapy if indicated by clinical signs or persistent fever • Route: IV • Duration: Per infectious/oncology protocol.`],
+          surgical: "Evaluate infected indwelling catheters, perianal/soft-tissue abscesses, or necrotizing infections with surgery/specialist care.",
+          nutrition: "Provide safe cooked food, oral care for mucositis, and hydration as tolerated.",
+          nonPharm: "Enforce strict hand hygiene and infection-control precautions, avoid rectal thermometers/enemas/IM injections, and monitor vitals and ANC closely."
+        },
+        id_8_16_sepsis: {
+          diagnosis: `Specific Diagnosis (STG 8.16 • Pages 434–438): Sepsis and Septic Shock — ${symLead} (${chosenDetails || "BP/MAP, Lactate/Perfusion & Source Check"}) (${durLabel})`,
+          clues: "Suspected/confirmed infection with acute organ dysfunction (confusion/AMS, tachypnea/hypoxia, oliguria, hypotension, cold skin, elevated lactate).",
+          rationale: "Act immediately: give oxygen, draw blood cultures/labs without delaying antibiotics, administer broad-spectrum IV antibiotics promptly, give IV crystalloid boluses, and start vasopressors if hypotension persists.",
+          firstLine: [`IV crystalloid bolus (0.9% Sodium Chloride or Ringer's Lactate for ${wt}) + broad-spectrum IV antimicrobial (e.g., Ceftriaxone or Piperacillin-Tazobactam/Meropenem per source) + Oxygen • Route: IV/Inhalation • Duration: Immediate resuscitation & 7–14 days antimicrobial.`],
+          secondLine: [`Norepinephrine IV infusion (for septic shock refractory to initial fluids to maintain MAP ≥65 mmHg) + ICU/source-control support • Route: IV • Duration: Until shock reversed & organ perfusion stable.`],
+          surgical: "Perform urgent surgical/procedural source control as soon as feasible.",
+          nutrition: "Keep NPO initially during shock/resuscitation; initiate enteral/oral feeding once hemodynamically stabilized.",
+          nonPharm: "Monitor BP/MAP, PR, RR, SpO2, Temp, mental status, and hourly urine output continuously."
+        },
+        id_8_17_uti: {
+          diagnosis: `Specific Diagnosis (STG 8.17 • Pages 439–444): Urinary Tract Infection (Cystitis / Pyelonephritis) — ${symLead} (${chosenDetails || "Dysuria/Flank Pain, Urinalysis & Pregnancy Check"}) (${durLabel})`,
+          clues: "Dysuria, frequency, urgency, suprapubic pain vs fever, chills, flank pain, nausea/vomiting, urinalysis, and pregnancy/catheter status.",
+          rationale: "Distinguish uncomplicated cystitis from pyelonephritis/complicated UTI/pregnancy, start targeted oral or IV antibiotics per STG, and encourage hydration.",
+          firstLine: [`Uncomplicated Cystitis: Nitrofurantoin or Trimethoprim-Sulfamethoxazole or Ciprofloxacin/Amoxicillin-Clavulanate (per STG & pregnancy safety for ${wt}). Pyelonephritis/Severe: Ceftriaxone IV or Ciprofloxacin PO/IV • Route: PO/IV • Duration: 3–7 days cystitis; 7–14 days pyelonephritis.`],
+          secondLine: [`Culture-guided oral/IV antibiotics or inpatient IV therapy if vomiting, sepsis, obstruction, or treatment failure occurs • Route: PO/IV • Duration: Per STG/culture.`],
+          surgical: "Obtain urologic/surgical evaluation if urinary tract obstruction, renal/perinephric abscess, stones, or catheter complication is suspected.",
+          nutrition: "Encourage adequate oral fluid intake (unless fluid-restricted for heart/renal disease).",
+          nonPharm: "Do not delay voiding, maintain hygiene, and complete the full antibiotic course."
+        },
+        id_8_18_helminths: {
+          diagnosis: `Specific Diagnosis (STG 8.18 • Pages 445–447): Intestinal Helminthic Infestations — ${symLead} (${chosenDetails || "Stool Microscopy & Worm/Anemia Screen"}) (${durLabel})`,
+          clues: "Abdominal discomfort/bloating, diarrhea or constipation, perianal itching, anemia/pallor, passage of worms, or stool ova/cyst/parasite results.",
+          rationale: "Administer appropriate anthelmintic therapy per STG/worm species, treat associated anemia/nutrition deficits, and prevent reinfection through hygiene.",
+          firstLine: [`Albendazole (400 mg PO single dose in ≥2 yrs/adults or weight-based per STG) or Mebendazole (500 mg PO single dose or 100 mg BID x 3 days) or Praziquantel as indicated • Route: PO • Duration: Single dose or 1–3 days per parasite.`],
+          secondLine: [`Repeat dose or specific agent per STG + oral iron/folate if iron-deficiency anemia present • Route: PO • Duration: Per parasite/STG.`],
+          surgical: "Obtain surgical evaluation if heavy worm burden causes intestinal obstruction or biliary/appendiceal blockage.",
+          nutrition: "Provide balanced iron/protein-rich meals and safe food/water hygiene.",
+          nonPharm: "Wear footwear, wash hands with soap, use sanitary latrines, and wash vegetables/fruits thoroughly."
+        },
+        id_8_19_brucellosis: {
+          diagnosis: `Specific Diagnosis (STG 8.19 • Pages 448–451): Brucellosis — ${symLead} (${chosenDetails || "Fever/Sweats/Arthralgia & Animal/Dairy Exposure"}) (${durLabel})`,
+          clues: "Undulating or prolonged fever, drenching sweats, arthralgia/myalgia/back pain, hepatosplenomegaly/lymphadenopathy, unpasteurized dairy or livestock exposure, and serology/culture.",
+          rationale: "Use combination antibiotic therapy for a full multi-week course to prevent relapse, and evaluate focal complications.",
+          firstLine: [`Doxycycline (100 mg PO every 12h in adults or per STG for ${wt}) + Rifampicin (600–900 mg PO once daily in adults or weight-based) • Route: PO • Duration: 6 weeks.`],
+          secondLine: [`Doxycycline + Streptomycin or Gentamicin, or specialist regimen for focal/complicated disease • Route: PO + IM/IV • Duration: Per focal involvement & STG.`],
+          surgical: "Refer to orthopedic/neuro/urologic surgery if focal abscess/complication occurs.",
+          nutrition: "Maintain good nutrition and hydration; strictly avoid unpasteurized milk and raw dairy products.",
+          nonPharm: "Boil/pasteurize milk and dairy products, wear protective gear when handling livestock, and complete the full 6-week regimen."
+        },
+        id_8_20_anthrax: {
+          diagnosis: `Specific Diagnosis (STG 8.20 • Pages 452–454): Anthrax (Cutaneous / Gastrointestinal / Inhalational) — ${symLead} (${chosenDetails || "Painless Eschar/Edema & Livestock Exposure"}) (${durLabel})`,
+          clues: "Painless papule/vesicle progressing to a blackened eschar with surrounding edema (cutaneous), GI symptoms, or severe respiratory distress, with sick/dead animal or meat contact.",
+          rationale: "Initiate prompt effective antibiotics per STG/severity, avoid cutting/manipulating eschar, and manage systemic/GI/respiratory complications urgently.",
+          firstLine: [`Ciprofloxacin or Doxycycline (dosed for ${wt} per STG/severity; PO for uncomplicated cutaneous, IV + combination therapy for systemic/GI/inhalational) • Route: PO/IV • Duration: Per STG/protocol.`],
+          secondLine: [`Combination IV antimicrobial therapy + ICU/respiratory/hemodynamic support for systemic or severe disease • Route: IV • Duration: Per severe disease protocol.`],
+          surgical: "Do NOT excise or debride uncomplicated cutaneous anthrax eschar; obtain surgical/ICU care only for severe complications.",
+          nutrition: "Support hydration and nutrition as tolerated.",
+          nonPharm: "Do not slaughter or eat sick/dead animals, report suspected cases to public health authorities, and practice strict infection control."
+        },
+        id_8_21_leishmaniasis: {
+          diagnosis: `Specific Diagnosis (STG 8.21 • Pages 455–463): Leishmaniasis (Visceral / Cutaneous / PKDL) — ${symLead} (${chosenDetails || "Parasitology/rK39 & Endemic Exposure"}) (${durLabel})`,
+          clues: "Prolonged fever, splenomegaly, hepatomegaly, anemia/pancytopenia, weight loss (Visceral / Kala-azar) OR chronic painless/ulcerated skin lesion/nodule (Cutaneous / PKDL) in endemic area.",
+          rationale: "Confirm/stage disease per STG/national guidelines, administer recommended anti-leishmanial therapy, and manage anemia/infections/toxicity.",
+          firstLine: [`Visceral (VL): Anti-leishmanial regimen per Ethiopian STG/national protocol (Liposomal Amphotericin B or Sodium Stibogluconate ± Paromomycin dosed for ${wt}) + antipyretics/supportive care. Cutaneous (CL): Local/intralesional or targeted therapy per STG/protocol • Route: IV/IM/Intralesional/PO • Duration: Per national VL/CL protocol.`],
+          secondLine: [`Rescue/alternative anti-leishmanial therapy, blood transfusion if severe anemia/bleeding, or antibiotics for secondary infection • Route: IV/IM/PO • Duration: Per specialist/national protocol.`],
+          surgical: "Obtain specialist/surgical input only for diagnostic tissue sampling or secondary abscess/complication care; no routine primary surgery.",
+          nutrition: "Provide high-protein, high-calorie meals, micronutrient/iron support, and adequate fluids.",
+          nonPharm: "Monitor Temp, CBC/Hb, spleen size, and drug toxicity; use insecticide-treated bed nets and vector control."
+        },
+        id_8_22_schistosomiasis: {
+          diagnosis: `Specific Diagnosis (STG 8.22 • Pages 464–465): Schistosomiasis (Intestinal / Urogenital) — ${symLead} (${chosenDetails || "Water Exposure, Stool/Urine Ova & Portal/Urinary Check"}) (${durLabel})`,
+          clues: "Freshwater contact, abdominal pain/diarrhea/bloody stool/hepatosplenomegaly OR terminal hematuria/dysuria/urinary symptoms, and stool/urine microscopy.",
+          rationale: "Treat with Praziquantel per STG weight-based dosing, and evaluate/manage portal hypertension or urinary tract complications if present.",
+          firstLine: [`Praziquantel (40 mg/kg PO single dose or divided dose per STG for ${wt}) • Route: PO • Duration: Per STG schistosomiasis protocol.`],
+          secondLine: [`Repeat Praziquantel if indicated + targeted management of portal hypertension, anemia, or urinary tract complications • Route: PO/IV • Duration: Per complication.`],
+          surgical: "Refer to surgery/urology if urinary stricture/hydronephrosis or severe portal complications require intervention.",
+          nutrition: "Maintain balanced nutrition, iron support if anemic, and safe water supply.",
+          nonPharm: "Avoid wading/bathing/washing in snail-infested freshwater sources and improve sanitation."
+        },
+        id_8_23_filariasis: {
+          diagnosis: `Specific Diagnosis (STG 8.23 • Pages 466–469): Lymphatic Filariasis — ${symLead} (${chosenDetails || "Lymphedema/Hydrocele Staging & Adenolymphangitis Check"}) (${durLabel})`,
+          clues: "Chronic lymphedema of limb/breast, hydrocele, recurrent acute dermatolymphangioadenitis (ADLA attacks), and endemic/filarial testing.",
+          rationale: "Manage acute ADLA episodes promptly with antibiotics/analgesics/rest, and prevent progression/recurrence through hygiene/limb care and national LF protocols.",
+          firstLine: [`Acute ADLA: Amoxicillin or Penicillin V or Doxycycline (for ${wt}) + Paracetamol & limb elevation. Chronic/MDA per national LF protocol: Albendazole + Ivermectin/DEC as indicated • Route: PO • Duration: 7–10 days for ADLA; per national LF protocol.`],
+          secondLine: [`IV antibiotics/supportive care if severe cellulitis/sepsis occurs during ADLA, plus specialist evaluation for hydrocele • Route: IV/PO • Duration: Per severity.`],
+          surgical: "Refer to general/urologic surgery for hydrocelectomy when symptomatic hydrocele is present and medically cleared.",
+          nutrition: "Maintain hydration and healthy nutrition.",
+          nonPharm: "Perform daily limb washing with soap and clean water, dry carefully, elevate limb, wear footwear, and exercise gently."
+        },
+        id_8_24_onchocerciasis: {
+          diagnosis: `Specific Diagnosis (STG 8.24 • Pages 470–472): Onchocerciasis (River Blindness) — ${symLead} (${chosenDetails || "Pruritic Rash/Nodules, Eye Exam & Endemic History"}) (${durLabel})`,
+          clues: "Severe chronic pruritus, skin changes, subcutaneous nodules, or visual impairment/ocular lesions in blackfly-endemic areas.",
+          rationale: "Treat with Ivermectin per STG/national guidelines, relieve itching, and refer for ophthalmologic care if eye involvement is present.",
+          firstLine: [`Ivermectin (150 mcg/kg PO single dose for ${wt} per national/STG protocol, repeated as indicated) + antipruritic/skin care • Route: PO • Duration: Per national onchocerciasis schedule.`],
+          secondLine: [`Ophthalmology referral for ocular involvement or specialist regimen where indicated • Route: PO / Ophthalmic • Duration: Per specialist/protocol.`],
+          surgical: "Nodulectomy only if indicated; refer to ophthalmology for ocular complications.",
+          nutrition: "Maintain balanced nutrition and adequate hydration.",
+          nonPharm: "Avoid scratching secondary skin lesions, monitor vision closely, and follow national Ivermectin treatment schedules."
+        },
+        id_8_25_rabies: {
+          diagnosis: `Specific Diagnosis (STG 8.25 • Pages 473–476): Rabies / Animal Bite Post-Exposure Evaluation — ${symLead} (${chosenDetails || "Wound Category I/II/III, Bite History & Neurologic Check"}) (${durLabel})`,
+          clues: "Dog/animal bite, scratch, or saliva contact on broken skin/mucosa, OR agitation, hydrophobia, aerophobia, hypersalivation, or neurologic signs.",
+          rationale: "Perform immediate thorough wound washing with soap/running water for ≥15 minutes, give prompt Rabies Vaccine PEP and RIG per STG/WHO, plus tetanus/antibiotic prophylaxis as needed.",
+          firstLine: [`Immediate wound washing (≥15 min soap & water + antiseptic) + Rabies Vaccine PEP (IM/ID schedule for ${wt} per STG/WHO) + Rabies Immunoglobulin (RIG for Category III) + Tetanus & wound antibiotic prophylaxis if indicated • Route: Wound/IM/ID/PO • Duration: Full PEP vaccine series.`],
+          secondLine: [`If clinical rabies encephalopathy has developed: quiet low-stimulus isolation and comfort/palliative care • Route: IV/SC/PO • Duration: Palliative comfort care.`],
+          surgical: "Irrigate and debride devitalized tissue gently; avoid primary tight suturing of fresh bite wounds unless necessary after RIG infiltration.",
+          nutrition: "Provide fluids/nutrition as safe while awake/able; avoid oral intake if dysphagia/hydrophobia is present.",
+          nonPharm: "Trace/observe animal if safe and applicable, complete every PEP vaccine dose on schedule, and wear PPE when caring for suspected clinical rabies patients."
+        },
+        id_8_26_tetanus: {
+          diagnosis: `Specific Diagnosis (STG 8.26 • Pages 477–480): Tetanus — ${symLead} (${chosenDetails || "Trismus/Spasms, Airway/Autonomic Status & Wound/Vaccination"}) (${durLabel})`,
+          clues: "Trismus (lockjaw), risus sardonicus, dysphagia, neck/back stiffness, painful generalized muscle spasms/opisthotonos, or contaminated/unimmunized wound.",
+          rationale: "Manage in a quiet, low-stimulus setting with airway protection ready, neutralize unbound toxin with TIG/ATS per STG, control spasms, treat infection, debride wounds, and immunize.",
+          firstLine: [`Tetanus Immune Globulin (TIG) or ATS (per STG/availability) + Diazepam (or sedation/muscle relaxant for spasms) + Metronidazole (500 mg IV/PO every 8h adults or weight-based for ${wt}) + Tetanus toxoid vaccine at separate site • Route: IM/IV/PO • Duration: Acute spasm/toxin control & 7–10 days Metronidazole.`],
+          secondLine: [`Airway/ventilatory support or ICU control for severe/refractory spasms or autonomic instability • Route: IV / Endotracheal • Duration: Until spasms subside.`],
+          surgical: "Perform thorough surgical wound debridement/cleaning after initial spasm control and TIG/sedation coverage.",
+          nutrition: "Keep NPO during active trismus/spasms to prevent aspiration; provide enteral tube feeding or IV fluids once airway/spasms are controlled.",
+          nonPharm: "Keep patient in a quiet, dimly lit room minimizing triggers, monitor airway, SpO2, BP, PR, and spasms continuously, and immunize fully after recovery."
+        },
+        id_8_27_tb: {
+          diagnosis: `Specific Diagnosis (STG 8.27 • Pages 481–499): Tuberculosis (Pulmonary / Extrapulmonary TB) — ${symLead} (${chosenDetails || "Cough ≥2w/Fever/Night Sweats/Weight Loss, GeneXpert/AFB & CXR"}) (${durLabel})`,
+          clues: "Cough (especially ≥2 weeks), fever, night sweats, weight loss, hemoptysis, or extrapulmonary signs, plus GeneXpert/AFB/CXR.",
+          rationale: "Confirm diagnosis and drug susceptibility per national TB guidelines, initiate first-line anti-TB therapy, screen for HIV/contacts, and monitor adherence and side effects.",
+          firstLine: [`First-Line Anti-TB Regimen per Ethiopian National TB Guidelines (weight-banded RHZE for ${wt} in intensive phase, followed by RH continuation phase) + Pyridoxine as indicated • Route: PO • Duration: 6 months standard drug-susceptible TB (or per national protocol).`],
+          secondLine: [`Drug-resistant TB regimen per national DR-TB guidance, corticosteroid adjunct where indicated, or specialist care for toxicity/relapse • Route: PO/IV • Duration: Per national DR-TB protocol.`],
+          surgical: "Refer to surgery/orthopedics/neurosurgery if spinal TB with cord compression, empyema/abscess, pericarditis, or biopsy is needed.",
+          nutrition: "Provide high-protein, high-calorie meals, adequate fluids, and nutritional support for weight recovery.",
+          nonPharm: "Practice cough hygiene/ventilation/infection control, screen contacts and test for HIV, support adherence, and monitor for jaundice/vision/neuropathy."
+        },
+        id_8_28_leprosy: {
+          diagnosis: `Specific Diagnosis (STG 8.28 • Page 500): Leprosy (Hansen’s Disease — Paucibacillary / Multibacillary) — ${symLead} (${chosenDetails || "Hypopigmented/Anesthetic Skin Patches, Nerve Thickening & Smear"}) (${durLabel})`,
+          clues: "Hypopigmented or erythematous skin patches with loss of sensation, thickened peripheral nerves with nerve function impairment, or slit-skin smear.",
+          rationale: "Classify as PB or MB per national/STG leprosy guidelines, initiate WHO Multidrug Therapy (MDT), assess nerve function regularly, and treat lepra reactions promptly.",
+          firstLine: [`WHO Multidrug Therapy (MDT) per national leprosy guidelines for ${wt}: MB or PB regimen • Route: PO • Duration: 6–12 months per national leprosy protocol.`],
+          secondLine: [`Prednisolone (tapered course for acute neuritis or Type 1/Type 2 lepra reactions) or specialist reaction management • Route: PO • Duration: Per reaction severity & specialist guidance.`],
+          surgical: "Refer for reconstructive/orthopedic/ophthalmic care if chronic ulcers, lagophthalmos, contractures, or nerve complications develop.",
+          nutrition: "Maintain balanced nutrition and adequate hydration.",
+          nonPharm: "Perform regular nerve function and sensory/motor checks, inspect hands/feet daily, wear protective footwear, use eye care if needed, and reduce stigma."
+        }
+      };
+
+      return plans[driver] || null;
+    }
+
+    function generateCharacterizingSymptoms(ccText, wardKey, vitals) {
+      const c = (ccText || "").toLowerCase();
+      const generated = [];
+
+      if (isLeishmaniasisCase(c)) {
+        generated.push(
+          "Prolonged fever / splenomegaly / hepatomegaly / pancytopenia / weight loss (Visceral Leishmaniasis / Kala-azar)",
+          "Chronic papular, nodular, or ulcerated skin lesion / PKDL (Cutaneous Leishmaniasis)"
+        );
+      }
+      if (c.includes("malaria") || c.includes("fever") || c.includes("typhoid") || c.includes("typhus") || c.includes("relapsing") || c.includes("brucell") || c.includes("anthrax") || c.includes("viral febrile")) {
+        generated.push(
+          "Fever / chills / rigors / sweating / headache / myalgia",
+          "Rash / eschar / drenching sweats / arthralgia / splenomegaly or hepatomegaly"
+        );
+      }
+      if (c.includes("meningit") || c.includes("neck stiff")) {
+        generated.push("Fever / severe headache / neck stiffness / photophobia / altered consciousness / seizures");
+      }
+      if (c.includes("diarr") || c.includes("dysenter") || c.includes("cholera") || c.includes("helminth") || c.includes("schistosom")) {
+        generated.push("Watery or bloody/mucoid diarrhea / abdominal cramps / tenesmus / dehydration", "Passage of worms / hematuria / perianal itching");
+      }
+      if (c.includes("pneumonia") || c.includes("pulmonary") || hasWord(c, "tb") || c.includes("tuberculosis")) {
+        generated.push("Cough / sputum / fever / pleuritic chest pain / tachypnea / dyspnea", "Chronic cough ≥2 weeks / night sweats / weight loss / hemoptysis");
+      }
+      if (c.includes("sepsis") || c.includes("neutropenic")) {
+        generated.push("Fever or hypothermia / chills / rigors / hypotension / tachycardia / tachypnea / confusion");
+      }
+      if (c.includes("osteomyelit") || c.includes("septic arthritis")) {
+        generated.push("Bone pain / localized tenderness / fever", "Hot, swollen, erythematous, painful joint with restricted movement");
+      }
+      if (c.includes("rabies") || c.includes("tetanus") || c.includes("bite")) {
+        generated.push("Animal bite / scratch / wound exposure", "Trismus / muscle spasms / neck or back stiffness / hydrophobia or agitation");
+      }
+      if (hasWord(c, "uti") || c.includes("urinary") || c.includes("dysuria")) {
+        generated.push("Dysuria / frequency / urgency / suprapubic pain", "Fever / flank pain / nausea or vomiting");
+      }
+      if (hasWord(c, "hiv") || hasWord(c, "aids")) {
+        generated.push("Weight loss / chronic fever or diarrhea / cough / lymphadenopathy / oral candidiasis");
+      }
+      if (c.includes("filariasis") || c.includes("onchocerc") || c.includes("leprosy")) {
+        generated.push("Chronic lymphedema / hydrocele / acute swollen limb", "Pruritic skin / nodules / hypopigmented anesthetic skin patch or thickened nerve");
+      }
+
+      const wardSyms = (wardGuides[wardKey] || wardGuides.medical).symptoms;
+      wardSyms.forEach(s => {
+        if (!generated.includes(s)) generated.push(s);
+      });
+      return generated.slice(0, 12);
+    }
+
+    function generateRelevantInvestigations(ccText, wardKey, symArr) {
+      const combined = `${ccText} ${symArr.join(" ")}`.toLowerCase();
+      const neededIds = [];
+      const addId = id => {
+        if (!neededIds.includes(id)) neededIds.push(id);
+      };
+
+      if (isLeishmaniasisCase(combined)) {
+        addId("cbc");
+        addId("surg_imaging");
+        addId("malaria");
+        addId("rvs");
+      }
+      if (combined.includes("malaria") || combined.includes("fever") || hasWord(combined, "afi") || combined.includes("typhoid") || combined.includes("typhus") || combined.includes("relapsing") || combined.includes("brucell") || combined.includes("viral febrile")) {
+        addId("malaria");
+        addId("cbc");
+        addId("rbg");
+        addId("urinalysis");
+      }
+      if (combined.includes("pneumonia") || combined.includes("pulmonary") || hasWord(combined, "tb") || combined.includes("tuberculosis")) {
+        addId("cxr");
+        addId("sputum_tb");
+        addId("cbc");
+        addId("rvs");
+      }
+      if (combined.includes("meningit") || combined.includes("sepsis") || combined.includes("neutropenic")) {
+        addId("cbc");
+        addId("rbg");
+        addId("renal_rft");
+        addId("urinalysis");
+      }
+      if (combined.includes("diarr") || combined.includes("dysenter") || combined.includes("cholera") || combined.includes("helminth") || combined.includes("schistosom")) {
+        addId("stool");
+        addId("cbc");
+        addId("rbg");
+      }
+      if (hasWord(combined, "uti") || combined.includes("urinary") || combined.includes("dysuria")) {
+        addId("urinalysis");
+        addId("renal_rft");
+        addId("cbc");
+      }
+      if (combined.includes("osteomyelit") || combined.includes("septic arthritis") || combined.includes("filariasis")) {
+        addId("cbc");
+        addId("surg_imaging");
+      }
+      if (hasWord(combined, "hiv") || hasWord(combined, "aids")) {
+        addId("rvs");
+        addId("cbc");
+        addId("sputum_tb");
+      }
+
+      if (!neededIds.length) {
+        addId("cbc");
+        addId("rbg");
+        addId("urinalysis");
+      }
+
+      state.extraInvIds.forEach(id => addId(id));
+      return ALL_SINGLE_INVESTIGATIONS.filter(inv => neededIds.includes(inv.id));
+    }
+
+    function buildSafetyAlerts(vitals, demo, text) {
+      const alerts = [];
+      const bp = parseBP(vitals?.bp || "");
+      const pr = parseNum(vitals?.pr || "");
+      const rr = parseNum(vitals?.rr || "");
+      const temp = parseNum(vitals?.temp || "");
+      const spo2 = parseNum(vitals?.spo2 || "");
+
+      if (isLeishmaniasisCase(text)) {
+        alerts.push("LEISHMANIASIS ALERT: Screen for fever, splenomegaly, severe anemia/pancytopenia, bleeding, secondary infection, or HIV co-infection, and confirm per STG/national guidelines.");
+      }
+      if (text.includes("sepsis") || text.includes("septic shock") || text.includes("neutropenic") || text.includes("meningit")) {
+        alerts.push("URGENT INFECTION / SEPSIS / CNS ALERT: Stabilize ABCs, oxygen, perfusion, and RBG immediately and start prompt empirical IV antimicrobials per STG.");
+      }
+      if (text.includes("rabies") || text.includes("tetanus")) {
+        alerts.push("RABIES / TETANUS ALERT: Perform immediate wound care/PEP/TIG/spasm & airway precautions per STG.");
+      }
+      if (spo2 !== null && spo2 < 90) alerts.push(`HYPOXIA ALERT (SpO2 ${spo2}%): Administer supplemental oxygen immediately.`);
+      if (bp && (bp.sbp >= 180 || bp.dbp >= 120)) alerts.push(`SEVERE HYPERTENSION ALERT (BP ${vitals.bp} mmHg): Screen urgently for target-organ damage.`);
+      if (temp !== null && temp >= 38.5) alerts.push(`HIGH FEVER ALERT (Temp ${temp}°C): Check for infection/malaria/sepsis/dehydration.`);
+      if (pr !== null && pr > 110) alerts.push(`TACHYCARDIA ALERT (PR ${pr} bpm): Evaluate for dehydration, fever, anemia, or shock.`);
+      if (rr !== null && rr > 24) alerts.push(`TACHYPNEA ALERT (RR ${rr}/min): Evaluate for hypoxia, acidosis, or respiratory distress.`);
+      return alerts;
+    }
+
+    function switchView(viewId, btn) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(viewId).classList.add("active");
+      if (btn) btn.classList.add("active");
+      renderUsageUI();
+    }
+
+    function showStep(id) {
+      document.querySelectorAll(".step").forEach(el => el.classList.remove("active"));
+      const target = document.getElementById(id);
+      if (target) target.classList.add("active");
+      window.scrollTo(0, 0);
+    }
+
+    function resolveDiagnosticDriver(wardKey, ccText, cleanDur, symArr, invObj, customNotesObj, demo, vitals) {
+      const symText = symArr.join(" ").toLowerCase();
+      const customVals = Object.values(customNotesObj || {}).filter(v => v && v.trim()).join(" ");
+      const invVals = flattenInvText(invObj);
+      const ccLower = (ccText || "").toLowerCase();
+      const fullText = `${ccLower} ${cleanDur} ${symText} ${invVals} ${customVals}`.toLowerCase();
+
+      const id270 = resolveInfectious270To500Driver(fullText);
+      if (id270) return id270;
+
+      if (isPsychiatryCase(fullText, wardKey)) return "psychiatry";
+      return "general";
+    }
+
+    function buildClinicalPlan(wardKey, ccText, durationText, symArr, invObj, customNotesObj, demo, vitals, isDirectMode = false) {
+      const cleanDur = formatDurationClean(durationText);
+      const customVals = Object.values(customNotesObj || {}).filter(v => v && v.trim()).join(" ");
+      const invVals = flattenInvText(invObj);
+      const wt = demo?.weight ? `${demo.weight} kg` : "patient weight (kg)";
+      const chosenDetails = [invVals, customVals].filter(Boolean).join(" • ");
+      const symLead = isDirectMode
+        ? `User-Entered Diagnosis "${ccText}" (2-Page Direct Flow)`
+        : (symArr.length ? `Driven by Signs/Symptoms [${symArr.join("; ")}]` : `Chief Complaint "${ccText}"`);
+      const driver = resolveDiagnosticDriver(wardKey, ccText, cleanDur, symArr, invObj, customNotesObj, demo, vitals);
+
+      const idPlan = buildInfectious270To500Plan(driver, ccText, cleanDur, symArr, chosenDetails, wt);
+      if (idPlan) return idPlan;
+
+      if (driver === "psychiatry") {
+        return {
+          diagnosis: `Specific Diagnosis (Psychiatry): ${symArr.join(", ") || ccText} — ${symLead} (${chosenDetails || cleanDur || "Psychiatric Evaluation"}) (${cleanDur || "Duration not specified"})`,
+          clues: "Rule out medical/delirium/substance causes, assess suicide/self-harm/aggression risk, and classify psychiatric presentation.",
+          rationale: "Ensure safety first, initiate targeted low-dose psychotropic therapy with side-effect monitoring, and engage family/community support.",
+          firstLine: [`Haloperidol (start low, e.g., 2–5 mg PO/IM in adults, titrated carefully) or Risperidone (start 1–2 mg PO once/twice daily in adults, titrated to 2–6 mg/day) or Fluoxetine (20 mg PO once daily) as indicated • Route: PO/IM • Duration: acute stabilization & ongoing maintenance.`],
+          secondLine: [`Switch/adjust agent or add mood stabilizer/specialist psychiatric care if inadequate response or side effects occur • Route: PO • Duration: ongoing.`],
+          surgical: "Perform urgent medical/neurologic workup if acute delirium or organic cause mimics psychiatric illness.",
+          nutrition: "Ensure regular meals and hydration; give Thiamine when alcohol misuse or poor intake is present.",
+          nonPharm: "Assess safety/suicide risk continuously, monitor EPS/sedation/BP, and support family engagement and follow-up."
+        };
+      }
+
+      return {
+        diagnosis: `Specific Diagnosis: ${ccText} — ${symLead} (${chosenDetails || "Clinical Evaluation"}) (${cleanDur || "Duration not specified"})`,
+        clues: "Chief complaint, duration, vital signs, selected signs/symptoms, and entered investigation findings.",
+        rationale: "Stabilize vital signs/hydration/oxygenation first, confirm diagnosis with targeted investigations, and treat the underlying cause directly.",
+        firstLine: [`Stabilize hydration, oxygenation, and pain/fever as indicated, and start targeted first-line therapy for ${ccText} (${symArr.join(", ") || "presenting features"}) • Route: PO/IV as clinically indicated for ${wt} • Duration: per confirmed diagnosis.`],
+        secondLine: [`Escalate therapy or refer to specialist/inpatient care if symptoms worsen or red flags appear • Route: PO/IV • Duration: per clinical response.`],
+        surgical: "Evaluate for urgent surgical, obstetric, or specialist intervention if acute surgical/obstetric signs arise.",
+        nutrition: "Maintain oral fluids and balanced nutrition as tolerated, or IV fluids if unable to tolerate oral intake.",
+        nonPharm: "Monitor vital signs and symptom progression closely; seek immediate medical care if danger signs develop."
+      };
+    }
+
+    function captureOptionalDemographicsAndVitals() {
+      state.demographics = {
+        age: (document.getElementById("age")?.value || "").trim() || null,
+        weight: (document.getElementById("weight")?.value || "").trim() || null,
+        sex: document.getElementById("sex")?.value || null,
+        ward: document.getElementById("ward")?.value || null
+      };
+      state.vitals = {
+        bp: (document.getElementById("bp")?.value || "").trim(),
+        pr: (document.getElementById("pr")?.value || "").trim(),
+        rr: (document.getElementById("rr")?.value || "").trim(),
+        temp: (document.getElementById("temp")?.value || "").trim(),
+        spo2: (document.getElementById("spo2")?.value || "").trim()
+      };
+    }
+
+    function goDirectPage2() {
+      try {
+        const dxEl = document.getElementById("directDiagnosis");
+        const dxText = dxEl ? dxEl.value.trim() : "";
+        if (!dxText) {
+          alert("እባክዎ በራስዎ Diagnosis ያስገቡ (ወይም ከላይ Chief Complaint ሞልተው ይቀጥሉ)።");
+          return;
+        }
+        captureOptionalDemographicsAndVitals();
+        state.isDirectTwoPage = true;
+        state.directDiagnosis = dxText;
+        state.cc = dxText;
+        state.ccDuration = formatDurationClean((document.getElementById("directDuration")?.value || "").trim());
+        state.symptoms.clear();
+        state.invResults = {};
+        state.invCustomNotes = {};
+        state.extraInvIds.clear();
+        goStep4();
+      } catch (err) {
+        alert("Direct Diagnosis ስህተት: " + (err?.message || err));
+      }
+    }
+
+    function goStep2() {
+      try {
+        const ccEl = document.getElementById("cc");
+        const cc = ccEl ? ccEl.value.trim() : "";
+        if (!cc) {
+          alert("እባክዎ Chief Complaint ያስገቡ (ወይም ከታች Direct Diagnosis ሞልተው በ 2 page ይጨርሱ)።");
+          return;
+        }
+        state.isDirectTwoPage = false;
+        state.directDiagnosis = "";
+        state.cc = cc;
+        state.ccDuration = formatDurationClean((document.getElementById("ccDuration")?.value || "").trim());
+        captureOptionalDemographicsAndVitals();
+
+        const wardKey = state.demographics?.ward || "medical";
+        const durSuffix = state.ccDuration ? ` (${state.ccDuration})` : "";
+        const banner = document.getElementById("ccContextBanner");
+        if (banner) {
+          banner.textContent = `Chief Complaint${durSuffix}: "${state.cc}" — የምትመርጧቸው Signs & Symptoms ቀጥታ ወደ Diagnosis ይመራሉ፦`;
+        }
+
+        const dynamicSyms = generateCharacterizingSymptoms(state.cc, wardKey, state.vitals);
+        const wrap = document.getElementById("symptomChips");
+        if (wrap) {
+          wrap.innerHTML = "";
+          dynamicSyms.forEach(sym => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "chip" + (state.symptoms.has(sym) ? " active" : "");
+            b.textContent = sym;
+            b.onclick = () => {
+              if (state.symptoms.has(sym)) state.symptoms.delete(sym);
+              else state.symptoms.add(sym);
+              b.classList.toggle("active");
+            };
+            wrap.appendChild(b);
+          });
+        }
+        showStep("step2");
+      } catch (err) {
+        alert("Step 2 ስህተት: " + (err?.message || err));
+      }
+    }
+
+    function renderStep3Investigations() {
+      const wardKey = state.demographics?.ward || "medical";
+      const symArr = [...state.symptoms];
+      const relevantInvestigations = generateRelevantInvestigations(state.cc, wardKey, symArr);
+
+      const invBanner = document.getElementById("invContextBanner");
+      if (invBanner) {
+        invBanner.textContent = `Chief Complaint: "${state.cc}" • Selected Signs/Symptoms: ${symArr.join(", ") || "None"}`;
+      }
+
+      const box = document.getElementById("investigationList");
+      if (box) {
+        box.innerHTML = "";
+        relevantInvestigations.forEach(inv => {
+          state.invResults[inv.id] = getSelectedInvArray(inv.id);
+          if (!state.invCustomNotes[inv.id]) state.invCustomNotes[inv.id] = "";
+
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `<h3>${inv.name}</h3>`;
+
+          const chips = document.createElement("div");
+          chips.className = "chips";
+
+          const syncChipStates = () => {
+            const current = getSelectedInvArray(inv.id);
+            chips.querySelectorAll(".chip").forEach(btn => {
+              const label = btn.dataset.opt;
+              btn.classList.toggle("active", current.includes(label));
+            });
+          };
+
+          inv.options.forEach(opt => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.dataset.opt = opt;
+            const currentArr = getSelectedInvArray(inv.id);
+            b.className = "chip" + (currentArr.includes(opt) ? " active" : "");
+            b.textContent = opt;
+            b.onclick = () => {
+              let arr = [...getSelectedInvArray(inv.id)];
+              if (opt === "None") {
+                arr = ["None"];
+              } else {
+                arr = arr.filter(x => x !== "None");
+                if (arr.includes(opt)) {
+                  arr = arr.filter(x => x !== opt);
+                } else {
+                  arr.push(opt);
+                }
+                if (!arr.length) arr = ["None"];
+              }
+              state.invResults[inv.id] = arr;
+              syncChipStates();
+            };
+            chips.appendChild(b);
+          });
+
+          const noteLabel = document.createElement("label");
+          noteLabel.setAttribute("for", `invCustom_${inv.id}`);
+          noteLabel.textContent = "የራስዎን ውጤት / ቁጥር ማስገቢያ (Blank Space)";
+
+          const noteInput = document.createElement("input");
+          noteInput.id = `invCustom_${inv.id}`;
+          noteInput.type = "text";
+          noteInput.placeholder = inv.placeholder || "Enter result / numeric value...";
+          noteInput.value = state.invCustomNotes[inv.id] || "";
+          noteInput.oninput = () => {
+            state.invCustomNotes[inv.id] = noteInput.value;
+          };
+
+          card.appendChild(chips);
+          card.appendChild(noteLabel);
+          card.appendChild(noteInput);
+          box.appendChild(card);
+        });
+      }
+
+      const shownIds = new Set(relevantInvestigations.map(i => i.id));
+      const selectEl = document.getElementById("extraInvSelect");
+      if (selectEl) {
+        selectEl.innerHTML = `<option value="">-- Select additional single investigation --</option>`;
+        ALL_SINGLE_INVESTIGATIONS.filter(i => !shownIds.has(i.id)).forEach(i => {
+          const op = document.createElement("option");
+          op.value = i.id;
+          op.textContent = i.name;
+          selectEl.appendChild(op);
+        });
+      }
+    }
+
+    function addExtraInvestigation() {
+      const selectEl = document.getElementById("extraInvSelect");
+      const chosenId = selectEl ? selectEl.value : "";
+      if (!chosenId) return;
+      state.extraInvIds.add(chosenId);
+      renderStep3Investigations();
+    }
+
+    function goStep3() {
+      renderStep3Investigations();
+      showStep("step3");
+    }
+
+    function goStep4() {
+      if (!state.caseCountedThisRun) {
+        casesCompleted += 1;
+        state.caseCountedThisRun = true;
+        try {
+          localStorage.setItem(USAGE_KEY, String(casesCompleted));
+        } catch (e) {}
+        renderUsageUI();
+      }
+
+      const badgeEl = document.getElementById("step4Badge");
+      if (badgeEl) {
+        if (state.isDirectTwoPage) {
+          badgeEl.textContent = "Page 2 of 2 (Direct Diagnosis) • Treatment & Care Plan";
+          badgeEl.className = "badge badge-direct";
+        } else {
+          badgeEl.textContent = "Step 4 of 4 • STG 4th Ed. Teaching & Clinical Summary";
+          badgeEl.className = "badge";
+        }
+      }
+
+      const cleanDur = formatDurationClean(state.ccDuration);
+      const wardKey = state.demographics?.ward || "medical";
+      const symArr = [...state.symptoms];
+      const symList = symArr.join(", ") || (state.isDirectTwoPage ? "Direct Diagnosis entered on Page 1" : "None selected");
+      const investigations = generateRelevantInvestigations(state.cc, wardKey, symArr);
+      const activeInvList = investigations.map(inv => {
+        const selArr = getSelectedInvArray(inv.id).filter(x => x && x !== "None");
+        const custom = (state.invCustomNotes[inv.id] || "").trim();
+        if (!selArr.length && !custom) return null;
+        const selText = selArr.join(", ");
+        if (selText && custom) return `${inv.name}: ${selText} (${custom})`;
+        if (selText) return `${inv.name}: ${selText}`;
+        return `${inv.name}: ${custom}`;
+      }).filter(Boolean);
+      const invSummary = activeInvList.join(" | ") || "None";
+
+      const plan = buildClinicalPlan(wardKey, state.cc, cleanDur, symArr, state.invResults, state.invCustomNotes, state.demographics, state.vitals, state.isDirectTwoPage);
+      const combinedText = `${state.cc} ${cleanDur} ${symArr.join(" ")} ${flattenInvText(state.invResults)} ${Object.values(state.invCustomNotes).join(" ")}`.toLowerCase();
+      const alerts = buildSafetyAlerts(state.vitals, state.demographics, combinedText);
+      const alertHtml = alerts.length
+        ? `<div class="alert-box"><strong>Clinical Safety & Danger Signs Alerts:</strong><ul>${alerts.map(a => `<li>${a}</li>`).join("")}</ul></div>`
+        : "";
+      const teachHtml = `<div class="teach-box"><strong>Teaching — Key Clinical Clues:</strong> ${plan.clues}<br/><strong>Evidence & Action Rationale:</strong> ${plan.rationale}</div>`;
+      const customNote = customWardUpdates[wardKey]
+        ? `<p><strong>Saved Owner Note (${customWardUpdates[wardKey].title}):</strong> ${customWardUpdates[wardKey].note}</p>`
+        : "";
+      const bpText = state.vitals?.bp ? ` • <strong>BP:</strong> ${state.vitals.bp}` : "";
+      const durText = cleanDur ? ` (${cleanDur})` : "";
+      const copyMsgEl = document.getElementById("copyStatusMsg");
+      if (copyMsgEl) copyMsgEl.textContent = "";
+
+      const summaryEl = document.getElementById("finalSummary");
+      if (summaryEl) {
+        const sourceLine = state.isDirectTwoPage
+          ? `<p><strong>Input Mode:</strong> 2-Page Direct Diagnosis • <strong>Entered Diagnosis:</strong> ${state.directDiagnosis}${durText}</p>`
+          : `<p><strong>Chief Complaint:</strong> ${state.cc}${durText}</p>`;
+
+        summaryEl.innerHTML = `
+          ${alertHtml}
+          <h3>Diagnosis</h3>
+          <p><strong>${plan.diagnosis}</strong></p>
+          ${sourceLine}
+          <p><strong>Ward:</strong> ${wardKey}${bpText} • <strong>Selected Signs/Symptoms:</strong> ${symList}</p>
+          <p><strong>Selected Investigations & Results:</strong> ${invSummary}</p>
+          ${teachHtml}
+          ${customNote}
+
+          <h3>First-Line Pharmacological Treatment (Drug • Dose • Route • Duration)</h3>
+          <ul>${plan.firstLine.map(x => `<li>${x}</li>`).join("")}</ul>
+
+          <h3>Second-Line Pharmacological Treatment (Drug • Dose • Route • Duration)</h3>
+          <ul>${plan.secondLine.map(x => `<li>${x}</li>`).join("")}</ul>
+
+          <h3>Surgical / Palliative / Obstetric Intervention</h3>
+          <ul><li>${plan.surgical}</li></ul>
+
+          <h3>Nutritional Recommendations</h3>
+          <ul><li>${plan.nutrition}</li></ul>
+
+          <h3>Non-Pharmacological / Psychosocial / Spiritual Care</h3>
+          <ul><li>${plan.nonPharm}</li></ul>
+
+          <div class="final-dx-box">
+            <strong>Final Diagnosis (Summary End):</strong> ${plan.diagnosis}
+          </div>
+
+          <p class="note-warn">Clinical decision support & teaching tool; always verify patient weight, age, pregnancy status, allergies, local protocols, and clinical judgment.</p>
+        `;
+      }
+      showStep("step4");
+    }
+
+    function copySummaryText() {
+      const el = document.getElementById("finalSummary");
+      const statusEl = document.getElementById("copyStatusMsg");
+      if (!el) return;
+      const text = el.innerText.trim();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          if (statusEl) statusEl.textContent = "Clinical summary copied to clipboard.";
+        }).catch(() => {
+          fallbackCopy(text, statusEl);
+        });
+      } else {
+        fallbackCopy(text, statusEl);
+      }
+    }
+
+    function fallbackCopy(text, statusEl) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        if (statusEl) statusEl.textContent = "Clinical summary copied.";
+      } catch (e) {
+        if (statusEl) statusEl.textContent = "Unable to auto-copy on this browser; you can select and copy text manually.";
+      }
+    }
+
+    function resetApp() {
+      state.symptoms.clear();
+      state.invResults = {};
+      state.invCustomNotes = {};
+      state.extraInvIds.clear();
+      state.ccDuration = "";
+      state.directDiagnosis = "";
+      state.isDirectTwoPage = false;
+      state.caseCountedThisRun = false;
+      if (document.getElementById("cc")) document.getElementById("cc").value = "";
+      if (document.getElementById("ccDuration")) document.getElementById("ccDuration").value = "";
+      if (document.getElementById("directDiagnosis")) document.getElementById("directDiagnosis").value = "";
+      if (document.getElementById("directDuration")) document.getElementById("directDuration").value = "";
+      const copyMsgEl = document.getElementById("copyStatusMsg");
+      if (copyMsgEl) copyMsgEl.textContent = "";
+      showStep("step1");
+    }
+
+    function selectPlan(planName) {
+      document.getElementById("planStatus").textContent =
+        `Selected: ${planName}. Connect backend /api/subscriptions/checkout and /api/usage/consume with Chapa/Telebirr to process live payments and usage metering.`;
+    }
+
+    function unlockOwnerPanel() {
+      const entered = (document.getElementById("ownerPinInput")?.value || "").trim();
+      const msgEl = document.getElementById("ownerLockMsg");
+      if (entered === ownerPin) {
+        document.getElementById("ownerLockSection").style.display = "none";
+        document.getElementById("ownerEditorSection").style.display = "block";
+        if (msgEl) msgEl.textContent = "";
+      } else if (msgEl) {
+        msgEl.textContent = "Invalid Owner PIN.";
+      }
+    }
+
+    function lockOwnerPanel() {
+      document.getElementById("ownerEditorSection").style.display = "none";
+      document.getElementById("ownerLockSection").style.display = "block";
+      if (document.getElementById("ownerPinInput")) document.getElementById("ownerPinInput").value = "";
+    }
+
+    function changeOwnerPin() {
+      const nextPin = (document.getElementById("newOwnerPin")?.value || "").trim();
+      if (nextPin.length < 4) {
+        document.getElementById("adminMsg").textContent = "Enter at least 4 characters for the new Owner PIN.";
+        return;
+      }
+      ownerPin = nextPin;
+      try {
+        localStorage.setItem(PIN_KEY, ownerPin);
+      } catch (e) {}
+      document.getElementById("newOwnerPin").value = "";
+      document.getElementById("adminMsg").textContent = "Owner PIN updated.";
+    }
+
+    function saveAdminStg() {
+      const ward = document.getElementById("admWard").value;
+      const title = document.getElementById("admTitle").value.trim();
+      const note = document.getElementById("admNote").value.trim();
+      if (!title || !note) {
+        document.getElementById("adminMsg").textContent = "Please enter both Section/Condition Title and Note.";
+        return;
+      }
+      customWardUpdates[ward] = { title, note, updatedAt: new Date().toISOString() };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(customWardUpdates));
+      } catch (e) {}
+      document.getElementById("adminMsg").textContent = `Saved STG 4th Ed. update for ${ward} (${title}).`;
+
+      const snippetObj = {
+        standard: "Ethiopian STG 4th Edition",
+        ward,
+        title,
+        note,
+        updatedAt: customWardUpdates[ward].updatedAt
+      };
+      document.getElementById("updateExportSnippet").textContent = JSON.stringify(snippetObj, null, 2);
+    }
+
+    renderUsageUI();
+  </script>
+</body>
+</html>
