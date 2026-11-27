@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STG 4th Ed. Clinical CDS App</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background: #ffffff;
+      color: #111827;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    .app {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      padding: 14px;
+      background: #ffffff;
+    }
+    h1 { font-size: 1.2rem; margin: 0 0 6px; color: #0f4c81; }
+    .sub { font-size: 0.85rem; color: #4b5563; margin-bottom: 14px; }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin: 8px 0 4px; }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+    textarea { min-height: 70px; }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #0f4c81;
+      color: #fff;
+      margin-top: 10px;
+    }
+    .out-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>STG 4th Ed. Clinical CDS App</h1>
+    <div class="sub">Full-Screen Mode • Ethiopian STG 4th Edition</div>
+
+    <div class="card">
+      <label for="dxInput">Diagnosis / Chief Complaint</label>
+      <input id="dxInput" type="text" placeholder="ለምሳሌ፡ Typhoid, Malaria, Leishmaniasis, TB..." />
+
+      <label for="wtInput">Weight (kg) — Optional</label>
+      <input id="wtInput" type="number" step="0.1" placeholder="ለምሳሌ፡ 60" />
+
+      <button type="button" class="btn" onclick="runQuickDx()">Generate Plan</button>
+    </div>
+
+    <div id="resultBox" class="out-box" style="display:none;"></div>
+  </div>
+
+  <script>
+    function runQuickDx() {
+      const raw = (document.getElementById("dxInput")?.value || "").trim();
+      const wt = (document.getElementById("wtInput")?.value || "").trim();
+      const box = document.getElementById("resultBox");
+      if (!raw || !box) return;
+
+      const t = raw.toLowerCase();
+      let title = `Clinical Assessment: ${raw}`;
+      let tx = "Stabilize vitals/hydration, perform targeted investigations, and initiate STG 4th Ed. first-line therapy.";
+
+      if (t.includes("typhoid") || t.includes("enteric")) {
+        title = "Typhoid Fever (Enteric Fever — STG 8.6)";
+        tx = "Azithromycin or Ciprofloxacin or Ceftriaxone per STG & local susceptibility + hydration/antipyretics; watch for perforation/bleeding.";
+      } else if (t.includes("malaria")) {
+        title = "Malaria (STG 8.5)";
+        tx = "Uncomplicated: ACT (e.g., Artemether-Lumefantrine) per weight/protocol. Severe: IV/IM Artesunate then full PO ACT.";
+      } else if (t.includes("leishman")) {
+        title = "Leishmaniasis (STG 8.21)";
+        tx = "Visceral/Cutaneous evaluation & national/STG anti-leishmanial protocol; monitor CBC/Hb, spleen, and drug toxicity.";
+      } else if (t.includes("tb") || t.includes("tuberculosis")) {
+        title = "Tuberculosis (STG 8.27)";
+        tx = "Confirm diagnosis/RIF status & initiate national first-line anti-TB therapy (RHZE then RH) + HIV/contact screening.";
+      }
+
+      box.style.display = "block";
+      box.innerHTML = `
+        <strong>${title}</strong>
+        ${wt ? `<p><strong>Weight:</strong> ${wt} kg</p>` : ""}
+        <p><strong>Treatment & Care:</strong> ${tx}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
